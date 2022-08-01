@@ -8,7 +8,7 @@ export default async function eslint(autoFix = !process.argv.includes('--eslint-
     return null;
   }
   const engine = new CLIEngine({ fix: autoFix });
-  const report = engine.executeOnFiles(['./src/', './tools/']);
+  const report = engine.executeOnFiles(['./src/', './targets/']);
   if (autoFix) {
     buildLog(`applying automatic eslint fixes`);
     CLIEngine.outputFixes(report);

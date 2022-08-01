@@ -4,11 +4,11 @@ import webpack from 'webpack';
 import WebpackAssetsManifest from 'webpack-assets-manifest';
 import nodeExternals from 'webpack-node-externals';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
-import overrideRules from './lib/overrideRules';
-import pkg from '../package.json';
-import babelCfg from '../babel.config';
+import overrideRules from './tools/lib/overrideRules';
+import pkg from './package.json';
+import babelCfg from './babel.config';
 
-const ROOT_DIR = path.resolve(__dirname, '..');
+const ROOT_DIR = path.resolve(__dirname);
 const resolvePath = (...args) => path.resolve(ROOT_DIR, ...args);
 const SRC_DIR = resolvePath('src');
 const BUILD_DIR = resolvePath('build');
@@ -59,7 +59,7 @@ const config = {
       // Rules for JS / JSX
       {
         test: reScript,
-        include: [SRC_DIR, resolvePath('tools')],
+        include: [SRC_DIR, resolvePath('targets')],
         loader: 'babel-loader',
         options: {
           // https://github.com/babel/babel-loader#options
@@ -141,11 +141,6 @@ const config = {
           // Apply PostCSS plugins including autoprefixer
           {
             loader: 'postcss-loader',
-            options: {
-              config: {
-                path: './tools/',
-              },
-            },
           },
 
           // Compile Less to CSS

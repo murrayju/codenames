@@ -10,7 +10,7 @@ import { format, onKillSignal, buildLog, dockerNetworkCreate } from 'build-strap
 import fs from 'fs-extra';
 import chokidar from 'chokidar';
 
-import webpackConfig from './webpack.config';
+import webpackConfig from '../webpack.config';
 import run from './run';
 import clean from './clean';
 import lint from './lint';

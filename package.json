@@ -4,13 +4,14 @@
   "description": "a game with words and spies",
   "main": "index.js",
   "buildStrap": {
+    "nodeVersion": "16.16.0",
+    "yarnVersion": "1.22.19",
     "repoType": "git",
     "copyright": "murrayju",
     "releaseBranch": "master",
     "devBranch": "dev",
     "npm": {
-      "publish": false,
-      "registry": "https://registry.yarnpkg.com/"
+      "publish": false
     },
     "docker": {
       "repository": "murrayju/codenames",
@@ -18,7 +19,7 @@
     }
   },
   "scripts": {
-    "run": "babel-node tools/run",
+    "target": "babel-node targets/run",
     "start": "./bs tdd"
   },
   "repository": {
