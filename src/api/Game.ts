@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import logger from '../util/logger.js';
 import WordList from './WordList.js';
 import { allowDenyFilter } from '../util/array.js';
-import type { ApiRequest, ApiRequestContext } from '../types/api.js';
+import type { ApiResponse, ApiContext } from '../types/api.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -88,9 +88,9 @@ export default class Game {
     this.#data = data;
     this.#sseClients = new Map();
     this.#sseConnections = new WeakMap();
-    this.#sse = new SseChannel<ApiRequest, Response>({ jsonEncode: true })
+    this.#sse = new SseChannel<Request, ApiResponse>({ jsonEncode: true })
       .on('connect', (channel, req, res) => {
-        const { clientId } = req.ctx;
+        const { clientId } = res.locals;
         logger.info('Client connected to SSE stream.', { clientId });
         if (!this.#sseClients.has(clientId)) {
           this.#sseClients.set(clientId, new Set());
@@ -189,7 +189,7 @@ export default class Game {
     return key;
   }
 
-  async rotateKey(ctx: ApiRequestContext) {
+  async rotateKey(ctx: ApiContext) {
     if (this.state.gameStarted) {
       throw new Error('Cannot rotate key after game has started.');
     }
@@ -284,7 +284,7 @@ export default class Game {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async save(ctx: ApiRequestContext) {
+  async save(ctx: ApiContext) {
     await this.emitToSseClients('stateChanged', await this.serialize());
   }
 
@@ -293,13 +293,13 @@ export default class Game {
     return this.state.turn;
   }
 
-  async pass(ctx: ApiRequestContext) {
+  async pass(ctx: ApiContext) {
     await this.nextTeam();
     await this.save(ctx);
     return this.state.turn;
   }
 
-  async startNewRound(ctx: ApiRequestContext) {
+  async startNewRound(ctx: ApiContext) {
     if (this.state.gameOver) {
       this.#data.players = [];
       this.#data.usedWords = this.usedWords.joinWith(this.state.words).list;
@@ -308,12 +308,12 @@ export default class Game {
     await this.save(ctx);
   }
 
-  async joinPlayer(ctx: ApiRequestContext, player: Player) {
+  async joinPlayer(ctx: ApiContext, player: Player) {
     this.#data.players = [...this.players, player];
     await this.save(ctx);
   }
 
-  async selectTile(ctx: ApiRequestContext, index: number) {
+  async selectTile(ctx: ApiContext, index: number) {
     if (!this.state.revealed || index >= this.state.revealed.length) {
       throw new Error('Invalid tile index');
     }
@@ -326,7 +326,7 @@ export default class Game {
     await this.save(ctx);
   }
 
-  static async find(ctx: ApiRequestContext, id: string): Promise<null | Game> {
+  static async find(ctx: ApiContext, id: string): Promise<null | Game> {
     // const game: ?GameDbData = await ctx.serverContext.db.collection('games').findOne({ id });
     // if (!game) {
     //   return null;
@@ -335,7 +335,7 @@ export default class Game {
     return gamesCache.get(id) || null;
   }
 
-  static async get(ctx: ApiRequestContext, id: string): Promise<null | Game> {
+  static async get(ctx: ApiContext, id: string): Promise<null | Game> {
     const game = await this.find(ctx, id);
     if (!game) {
       throw new Error(`No game found with id '${id}'`);
@@ -343,7 +343,7 @@ export default class Game {
     return game;
   }
 
-  static async newUniqueId(ctx: ApiRequestContext) {
+  static async newUniqueId(ctx: ApiContext) {
     const wl = await WordList.get('standard');
     let id = null;
     let attempts = 10;
@@ -359,10 +359,7 @@ export default class Game {
     return nanoid();
   }
 
-  static async create(
-    ctx: ApiRequestContext,
-    { wordListId }: NewGameOptions = {},
-  ) {
+  static async create(ctx: ApiContext, { wordListId }: NewGameOptions = {}) {
     const id = await this.newUniqueId(ctx);
     const game = new Game({ id, wordListId });
     await game.newRound();

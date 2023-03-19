@@ -3,12 +3,12 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { nanoid } from 'nanoid';
 
-import { NextFunction, Response } from 'express';
+import { Request, NextFunction, Response } from 'express';
 import { version } from '../util/version._generated_.js'; // eslint-disable-line import/no-unresolved
 import logger from '../util/logger.js';
 import WordList from './WordList.js';
 import Game from './Game.js';
-import { ApiRequest, GameApiRequest, ServerContext } from '../types/api.js';
+import { ApiResponse, GameApiResponse, ServerContext } from '../types/api.js';
 import { StatusError } from '../types/error.js';
 
 // Middleware factory
@@ -18,12 +18,12 @@ export default function api(serverContext: ServerContext) {
   router.use(cors());
   router.use(cookieParser());
   // all requests get a correlationId and clientId
-  router.use((req: ApiRequest, res: Response, next: NextFunction) => {
+  router.use((req: Request, res: ApiResponse, next: NextFunction) => {
     // use a cookie to identify clients
     const clientId = req.cookies.clientId || nanoid();
     res.cookie('clientId', clientId);
     // namespace all extra parameters under req.ctx (more get added later)
-    req.ctx = {
+    res.locals = {
       correlationId: nanoid(),
       clientId,
       serverContext,
@@ -31,100 +31,88 @@ export default function api(serverContext: ServerContext) {
     next();
   });
 
-  router.get('/', async (req, res) => {
+  router.get('/', (req: Request, res: ApiResponse) => {
     res.json({ ready: true });
   });
 
-  router.get('/version', async (req, res) => {
+  router.get('/version', (req: Request, res: ApiResponse) => {
     res.json(version);
   });
 
-  router.get('/wordList', async (req: ApiRequest, res) => {
+  router.get('/wordList', async (req: Request, res: ApiResponse) => {
     res.json(await WordList.getAll());
   });
 
-  router.post('/game', async (req: ApiRequest, res) => {
-    const game = await Game.create(req.ctx, req.body);
-    return res.json(await game.serialize());
+  router.post('/game', async (req: Request, res: ApiResponse) => {
+    const game = await Game.create(res.locals, req.body);
+    res.json(await game.serialize());
   });
 
-  router.use('/game/:id', async (req: GameApiRequest, res, next) => {
-    const game = await Game.find(req.ctx, req.params.id);
-    if (!game) {
-      return res.status(404).send('Not found');
-    }
-    req.ctx.game = game;
-    return next();
+  router.use(
+    '/game/:id',
+    async (req: Request, res: GameApiResponse, next: NextFunction) => {
+      const game = await Game.find(res.locals, req.params.id);
+      if (!game) {
+        return res.status(404).send('Not found');
+      }
+      res.locals.game = game;
+      return next();
+    },
+  );
+
+  router.get('/game/:id', async (req: Request, res: GameApiResponse) => {
+    res.json(await res.locals.game.serialize());
   });
 
-  router.get('/game/:id', async (req: GameApiRequest, res) => {
-    const {
-      ctx: { game },
-    } = req;
-    return res.json(await game.serialize());
+  router.get('/game/:id/events', async (req: Request, res: GameApiResponse) => {
+    await res.locals.game.connectSseClient(req, res);
   });
 
-  router.get('/game/:id/events', async (req: GameApiRequest, res) => {
-    const {
-      ctx: { game },
-    } = req;
-    return game.connectSseClient(req, res);
-  });
-
-  router.post('/game/:id/join', async (req: GameApiRequest, res) => {
-    const {
-      body,
-      ctx: { game, clientId },
-    } = req;
-    const player = {
-      ...body,
-      id: clientId,
-    };
-    await game.joinPlayer(req.ctx, player);
-    return res.status(204).send();
+  router.post('/game/:id/join', async (req: Request, res: GameApiResponse) => {
+    await res.locals.game.joinPlayer(res.locals, {
+      ...req.body,
+      id: res.locals.clientId,
+    });
+    res.status(204).send();
   });
 
   router.post(
     '/game/:id/selectTile/:tileIndex',
-    async (req: GameApiRequest, res) => {
-      const {
-        ctx: { game },
-        params: { tileIndex },
-      } = req;
-      await game.selectTile(req.ctx, parseInt(tileIndex, 10));
-      return res.status(204).send();
+    async (req: Request, res: GameApiResponse) => {
+      await res.locals.game.selectTile(
+        res.locals,
+        parseInt(req.params.tileIndex, 10),
+      );
+      res.status(204).send();
     },
   );
 
-  router.post('/game/:id/pass', async (req: GameApiRequest, res) => {
-    const {
-      ctx: { game },
-    } = req;
-    await game.pass(req.ctx);
-    return res.status(204).send();
+  router.post('/game/:id/pass', async (req: Request, res: GameApiResponse) => {
+    await res.locals.game.pass(res.locals);
+    res.status(204).send();
   });
 
-  router.post('/game/:id/newRound', async (req: GameApiRequest, res) => {
-    const {
-      ctx: { game },
-    } = req;
-    await game.startNewRound(req.ctx);
-    return res.status(204).send();
-  });
+  router.post(
+    '/game/:id/newRound',
+    async (req: Request, res: GameApiResponse) => {
+      await res.locals.game.startNewRound(res.locals);
+      res.status(204).send();
+    },
+  );
 
-  router.post('/game/:id/rotateKey', async (req: GameApiRequest, res) => {
-    const {
-      ctx: { game },
-    } = req;
-    await game.rotateKey(req.ctx);
-    return res.status(204).send();
-  });
+  router.post(
+    '/game/:id/rotateKey',
+    async (req: Request, res: GameApiResponse) => {
+      await res.locals.game.rotateKey(res.locals);
+      res.status(204).send();
+    },
+  );
 
   // Custom error handler
   router.use(
     (
       err: StatusError,
-      req: ApiRequest,
+      req: Request,
       res: Response,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       next: NextFunction,
