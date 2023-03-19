@@ -1,7 +1,7 @@
 {
   "name": "codenames",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.0.0",
   "type": "module",
   "buildStrap": {
     "nodeVersion": "18.15.0",
@@ -24,9 +24,8 @@
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --ssr src/entry-server.tsx --outDir dist/server",
     "generate": "vite build --outDir dist/static && yarn build:server && node prerender",
-    "serve": "NODE_ENV=production node server",
-    "target": "tsx targets/run",
-    "debug": "node --inspect-brk server"
+    "serve": "NODE_ENV=production tsx server",
+    "target": "tsx targets/run"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.3.0",

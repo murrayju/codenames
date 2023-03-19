@@ -54,6 +54,8 @@ rules:
     - error
     - functions: defaultArguments
   no-nested-ternary: 'off'
+  no-restricted-syntax: 'off'
+  no-await-in-loop: 'off'
   no-console:
     - 'warn'
     - allow: ['warn', 'error', 'info', 'debug']
