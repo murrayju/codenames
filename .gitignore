@@ -1,16 +1,26 @@
-**/*_generated_*
-**/node_modules/
-.vscode/
-bin/
-build/
-config/local*
-db/
-download/
-out/
-latest.build*
+# Logs
 log/
-deploy_rsa
-node*
+*.log
+yarn-debug.log*
+yarn-error.log*
+
+# bs
+/node*
 yarn
 yarn.bat
 yarn.ps1
+
+**/*_generated_*
+download/
+node_modules/
+dist/
+dist-ssr/
+out/
+build/
+*.local
+config/local*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
