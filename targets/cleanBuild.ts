@@ -6,5 +6,6 @@ export default async function cleanBuild() {
     buildLog('Skipping due to --no-clean-build');
     return;
   }
-  await remove('./build');
+  await remove('./dist');
+  await remove('./out');
 }

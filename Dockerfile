@@ -12,12 +12,12 @@ RUN yarn
 ARG BUILD_NUMBER
 ENV BUILD_NUMBER ${BUILD_NUMBER:-0}
 COPY . .
-RUN yarn target publish --release
+RUN yarn target build
 
 # Defaults when running this container
 EXPOSE 443
 ENTRYPOINT ["yarn", "target"]
-CMD ["server"]
+CMD ["dev"]
 
 ###
 # Production image. Only include what is needed for production

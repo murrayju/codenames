@@ -1,4 +1,4 @@
-import config from 'config';
+import config from '@murrayju/config';
 import { nanoid } from 'nanoid';
 import union from 'lodash/union';
 import without from 'lodash/without';

@@ -1,4 +1,4 @@
-import config from 'config';
+import config from '@murrayju/config';
 import { type Db, type IndexDescription, MongoClient } from 'mongodb';
 
 interface DbCollection {
