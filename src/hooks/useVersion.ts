@@ -1,4 +1,5 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
+
 import AppContext from '../contexts/AppContext.js';
 
 const useVersion = () => {

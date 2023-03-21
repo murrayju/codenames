@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 interface Props {
-  noMargin?: boolean;
   flex?: boolean | string;
+  noMargin?: boolean;
 }
 
 const Paper = styled.div<Props>`

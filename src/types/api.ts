@@ -8,8 +8,8 @@ export interface ServerContext {
 }
 
 export interface ApiContext {
-  correlationId: string;
   clientId: string;
+  correlationId: string;
   serverContext: ServerContext;
 }
 

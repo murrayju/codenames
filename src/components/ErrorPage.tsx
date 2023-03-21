@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import { createGlobalStyle } from 'styled-components';
+
 import { StatusError } from '../types/error.js';
 
 const GlobalStyle = createGlobalStyle`

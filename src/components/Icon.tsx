@@ -1417,45 +1417,45 @@ type TextStyle =
   | 'danger';
 
 interface IconAttrs {
-  name: IconName;
-  li?: boolean;
-  lg?: boolean;
-  fw?: boolean;
-  rotate90?: boolean;
-  rotate180?: boolean;
-  rotate270?: boolean;
+  bsStyle?: TextStyle;
   flipH?: boolean;
   flipV?: boolean;
-  stack?: '1x' | '2x';
-  bsStyle?: TextStyle;
-  solid?: boolean;
+  fw?: boolean;
+  lg?: boolean;
+  li?: boolean;
+  name: IconName;
   regular?: boolean;
+  rotate180?: boolean;
+  rotate270?: boolean;
+  rotate90?: boolean;
+  solid?: boolean;
+  stack?: '1x' | '2x';
 }
 
 interface IconProps extends IconAttrs, ColorProps {
   css?: string;
-  pad?: 'sm' | 'md' | 'lg' | number | string;
-  smPad?: boolean;
-  mdPad?: boolean;
   lgPad?: boolean;
+  mdPad?: boolean;
+  pad?: 'sm' | 'md' | 'lg' | number | string;
   size?: number | string;
+  smPad?: boolean;
 }
 
 const Icon = styled.i.attrs<IconAttrs>(
   ({
-    name,
-    li,
-    lg,
+    bsStyle,
+    flipH,
+    flipV,
     fw,
+    lg,
+    li,
+    name,
+    regular,
     rotate90,
     rotate180,
     rotate270,
-    flipH,
-    flipV,
-    stack,
-    bsStyle,
     solid,
-    regular,
+    stack,
   }) => ({
     className: [
       solid ? 'fas' : regular ? 'far' : 'fas',
@@ -1478,7 +1478,7 @@ const Icon = styled.i.attrs<IconAttrs>(
   font-size: ${({ size }) => (typeof size === 'number' ? `${size}px` : size)};
   color: ${(props) => propsColor(props)};
   padding: 0
-    ${({ pad, smPad, mdPad, lgPad }) =>
+    ${({ lgPad, mdPad, pad, smPad }) =>
       pad === 'sm' && !!smPad
         ? '.25em'
         : pad === 'md' && !!mdPad

@@ -1,44 +1,45 @@
 import React, { FC, useCallback } from 'react';
 import styled from 'styled-components';
 
+import type { Role, TileType } from '../api/Game.js';
+
 import Icon, { IconName } from './Icon.js';
 import { bsTheme } from './Layout.js';
-import type { TileType, Role } from '../api/Game.js';
 
 const portraitColors = {
-  red: bsTheme.game.spyRed,
-  blue: bsTheme.game.spyBlue,
   assassin: bsTheme.game.spyBlack,
+  blue: bsTheme.game.spyBlue,
   bystander: bsTheme.game.portraitBystander,
+  red: bsTheme.game.spyRed,
   unknown: bsTheme.game.portraitUnknown,
 };
 
 const portraitIcons: Record<TileType, IconName> = {
-  red: 'user-secret',
-  blue: 'user-secret',
   assassin: 'user-ninja',
+  blue: 'user-secret',
   bystander: 'user',
+  red: 'user-secret',
   unknown: 'user',
 };
 
 const borderColors = {
-  red: bsTheme.game.spyRed,
-  blue: bsTheme.game.spyBlue,
   assassin: bsTheme.game.spyBlack,
+  blue: bsTheme.game.spyBlue,
   bystander: bsTheme.game.cardDark,
+  red: bsTheme.game.spyRed,
   unknown: bsTheme.game.cardDark,
 };
 
 interface TileProps {
+  image?: string;
   revealed?: boolean;
   type?: TileType;
-  image?: string;
 }
 
 const Tile = styled.div<TileProps>`
-  background-color: ${({ theme, revealed, type }) =>
+  background-color: ${({ revealed, theme, type }) =>
     revealed && type ? portraitColors[type] : theme.game.cardLight};
-  ${({ revealed, image }) =>
+  ${({ image, revealed }) =>
     revealed && image
       ? `
     background-image: url('${image}');
@@ -64,7 +65,7 @@ const Tile = styled.div<TileProps>`
     width: 220px;
     height: calc(220px * 4 / 7);
     font-size: 0.9em;
-    ${({ revealed, image }) =>
+    ${({ image, revealed }) =>
       revealed && image ? 'box-shadow: 4px 4px 4px #666;' : ''};
   }
   @media (max-width: ${({ theme }) => theme.screen.mdMin}),
@@ -74,7 +75,7 @@ const Tile = styled.div<TileProps>`
     width: 130px;
     height: calc(130px * 4 / 7);
     font-size: 0.8em;
-    ${({ revealed, image }) =>
+    ${({ image, revealed }) =>
       revealed && image ? 'box-shadow: 2px 2px 2px #666;' : ''};
   }
   @media (max-height: ${({ theme }) => theme.screen.smMinHt}) {
@@ -202,21 +203,21 @@ const Word = styled.span`
 `;
 
 interface Props {
-  type?: TileType;
   image?: null | string;
-  word: string;
+  onChoose: () => void;
   revealed: boolean;
   role: Role;
-  onChoose: () => void;
+  type?: TileType;
+  word: string;
 }
 
 const WordTile: FC<Props> = ({
-  word,
-  type = 'unknown',
-  revealed,
   image = null,
-  role,
   onChoose,
+  revealed,
+  role,
+  type = 'unknown',
+  word,
 }) => {
   const isSpymaster = role === 'spymaster';
   const shownType = isSpymaster ? type : 'unknown';
@@ -228,7 +229,7 @@ const WordTile: FC<Props> = ({
   }, [isSpymaster, onChoose]);
 
   return revealed && image ? (
-    <Tile image={image} type={type} revealed />
+    <Tile image={image} revealed type={type} />
   ) : (
     <Tile onClick={handleChoose}>
       <InnerTile type={shownType}>

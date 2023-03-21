@@ -1,7 +1,7 @@
-import React, { ReactNode } from 'react';
-import styled from 'styled-components';
 import { position } from 'polished';
-import { Modal, Button } from 'react-bootstrap';
+import React, { ReactNode } from 'react';
+import { Button, Modal } from 'react-bootstrap';
+import styled from 'styled-components';
 
 const Overlay = styled.div`
   ${position('fixed', 0, 0, 0, 0)};
@@ -12,13 +12,13 @@ const Overlay = styled.div`
 `;
 
 interface Props {
-  title: string;
   message: string | ReactNode;
-  onConfirm: () => void;
   onCancel: () => void;
+  onConfirm: () => void;
+  title: string;
 }
 
-const ConfirmModal = ({ title, message, onConfirm, onCancel }: Props) => (
+const ConfirmModal = ({ message, onCancel, onConfirm, title }: Props) => (
   <Overlay onClick={onCancel}>
     {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
     <div className="modal-content" onClick={(evt) => evt.stopPropagation()}>
@@ -30,7 +30,7 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel }: Props) => (
 
       <Modal.Footer>
         <Button onClick={onCancel}>Cancel</Button>
-        <Button onClick={onConfirm} bsStyle="primary">
+        <Button bsStyle="primary" onClick={onConfirm}>
           Confirm
         </Button>
       </Modal.Footer>

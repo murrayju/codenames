@@ -1,8 +1,8 @@
 import winston from 'winston';
 
 const logger = winston.createLogger({
-  level: 'debug',
   format: winston.format.json(),
+  level: 'debug',
   transports: [new winston.transports.File({ filename: './log/server.log' })],
 });
 

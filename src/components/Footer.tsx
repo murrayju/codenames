@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import Icon from './Icon.js';
 import useVersion from '../hooks/useVersion.js';
+
+import Icon from './Icon.js';
 
 const Box = styled.div`
   display: flex;

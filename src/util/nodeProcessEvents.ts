@@ -23,16 +23,16 @@ const unhandledRejectionHandler = (
 ) => {
   unhandledRejections.set(promise, reason);
   console.error('Node<unhandledRejection>', {
+    count: unhandledRejections.size,
     promise,
     reason,
-    count: unhandledRejections.size,
   });
 };
 const rejectionHandledHandler = (promise: Promise<any>) => {
   unhandledRejections.delete(promise);
   console.info('Node<rejectionHandled>', {
-    promise,
     count: unhandledRejections.size,
+    promise,
   });
 };
 

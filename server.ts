@@ -1,20 +1,20 @@
 import config from '@murrayju/config';
+import bodyParser from 'body-parser';
+import express, { type Application } from 'express';
+import nodeFetch from 'node-fetch';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import express, { type Application } from 'express';
-
 import cookiesMiddleware from 'universal-cookie-express';
 import { ViteDevServer } from 'vite';
-import bodyParser from 'body-parser';
-import nodeFetch from 'node-fetch';
-import { handleNodeProcessEvents } from './src/util/nodeProcessEvents.js';
-import { ServerContext } from './src/types/api.js';
-import * as mongo from './src/util/mongo.js';
+
 import api from './src/api/index.js';
-import createFetch, { Fetch } from './src/util/createFetch.js';
 import { AppContextData } from './src/contexts/AppContext.js';
 import { type RenderResult } from './src/entry-server.js';
+import { ServerContext } from './src/types/api.js';
+import createFetch, { Fetch } from './src/util/createFetch.js';
+import * as mongo from './src/util/mongo.js';
+import { handleNodeProcessEvents } from './src/util/nodeProcessEvents.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const resolve = (p: string) => path.resolve(dirname, p);
@@ -41,7 +41,7 @@ export async function createServer(
   app.use(bodyParser.json());
 
   // initialize the db
-  const { db, client: mongoClient } = await mongo.init();
+  const { client: mongoClient, db } = await mongo.init();
   const serverContext: ServerContext = { db };
 
   app.use('/api', api(serverContext));
@@ -55,21 +55,21 @@ export async function createServer(
     vite = await (
       await import('vite')
     ).createServer({
-      root,
+      appType: 'custom',
       logLevel: isTest ? 'error' : 'info',
+      root,
       server: {
-        middlewareMode: true,
-        watch: {
-          // During tests we edit the files too fast and sometimes chokidar
-          // misses change events, so enforce polling for consistency
-          usePolling: true,
-          interval: 100,
-        },
         hmr: {
           port: hmrPort,
         },
+        middlewareMode: true,
+        watch: {
+          interval: 100,
+          // During tests we edit the files too fast and sometimes chokidar
+          // misses change events, so enforce polling for consistency
+          usePolling: true,
+        },
       },
-      appType: 'custom',
     });
     // use vite's connect instance as middleware
     app.use(vite.middlewares);
@@ -94,8 +94,8 @@ export async function createServer(
       });
 
       const context: AppContextData = {
-        fetch,
         cookies,
+        fetch,
       };
 
       let template: string;
@@ -112,7 +112,7 @@ export async function createServer(
         render = (await import('./dist/server/entry-server.js')).render;
       }
 
-      const { appHtml, appCss } = render(url, context);
+      const { appCss, appHtml } = render(url, context);
       const html = template
         .replace(`<!--app-html-->`, appHtml)
         .replace(`/*app-css*/`, appCss)
@@ -126,7 +126,7 @@ export async function createServer(
     }
   });
 
-  return { app, vite, mongoClient };
+  return { app, mongoClient, vite };
 }
 
 if (!isTest) {

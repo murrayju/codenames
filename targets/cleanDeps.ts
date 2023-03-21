@@ -1,4 +1,5 @@
-import { run, buildLog } from 'build-strap';
+import { buildLog, run } from 'build-strap';
+
 import cleanDownloads from './cleanDownloads.js';
 import cleanYarn from './cleanYarn.js';
 

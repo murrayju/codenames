@@ -19,6 +19,9 @@ plugins:
   - react
   - '@typescript-eslint'
   - prettier
+  - sort-keys-fix
+  - sort-destructure-keys
+  - typescript-sort-keys
 overrides:
   - files:
       - '*.ts'
@@ -42,6 +45,28 @@ rules:
     #     - '**/*.test.tsx'
     #     - targets/**
   import/prefer-default-export: 'off'
+  import/order:
+    - 'error'
+    - alphabetize:
+        caseInsensitive: true
+        order: asc
+      groups:
+        - [builtin, external]
+        - parent
+        - sibling
+        - index
+        - object
+      newlines-between: always
+  react/jsx-sort-props: ['error', { reservedFirst: true }]
+  react/no-unescaped-entities: ['error', { forbid: ['>', '}'] }]
+  sort-destructure-keys/sort-destructure-keys: 'error'
+  sort-imports:
+    - 'error'
+    - { ignoreCase: true, ignoreDeclarationSort: true }
+  sort-keys-fix/sort-keys-fix: 'error'
+  space-before-function-paren: 'off'
+  typescript-sort-keys/interface: 'error'
+  typescript-sort-keys/string-enum: 'error'
   '@typescript-eslint/no-unused-expressions': 'off'
   prettier/prettier: error
   arrow-body-style: 'off'
@@ -53,6 +78,7 @@ rules:
   react/require-default-props:
     - error
     - functions: defaultArguments
+  react/jsx-props-no-spreading: 'off'
   no-nested-ternary: 'off'
   no-restricted-syntax: 'off'
   no-await-in-loop: 'off'

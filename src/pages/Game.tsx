@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import { useParams } from 'react-router-dom';
+
 import Game from '../components/Game';
 
 const GameRoute: FC = () => {

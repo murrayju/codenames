@@ -1,33 +1,34 @@
-import React, {
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  ReactNode,
-} from 'react';
-import styled from 'styled-components';
-import { useCookies } from 'react-cookie';
-import { OverlayTrigger, Popover, Badge } from 'react-bootstrap';
-
 import { EventSourcePolyfill } from 'event-source-polyfill';
-import useEventSource from '../hooks/useEventSource.js';
+import React, {
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { Badge, OverlayTrigger, Popover } from 'react-bootstrap';
+import { useCookies } from 'react-cookie';
+import styled from 'styled-components';
+
+import type { GameDbData } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
-import WordBoard from './WordBoard.js';
+import useEventSource from '../hooks/useEventSource.js';
+
+import ConfirmModal from './ConfirmModal.js';
+import { FlowCenter, FlowLeft, FlowRight, Heading } from './flex.js';
 import Icon from './Icon.js';
 import IconButton from './IconButton.js';
+import JoinGame from './JoinGame.js';
 import Loading from './Loading.js';
 import NotFound from './NotFound.js';
-import JoinGame from './JoinGame.js';
-import ConfirmModal from './ConfirmModal.js';
-import { Heading, FlowLeft, FlowCenter, FlowRight } from './flex.js';
-import type { GameDbData } from '../api/Game.js';
+import WordBoard from './WordBoard.js';
 
 const ColoredBadge = styled(Badge)`
   background-color: ${({
-    theme: {
-      game: { spyRed, spyBlue, spyBlack },
-    },
     color,
+    theme: {
+      game: { spyBlack, spyBlue, spyRed },
+    },
   }) => (color === 'red' ? spyRed : color === 'blue' ? spyBlue : spyBlack)};
   margin: 5px;
   padding: 10px;
@@ -37,10 +38,10 @@ const ColoredBadge = styled(Badge)`
 
 const ColoredHeading = styled.h2`
   color: ${({
-    theme: {
-      game: { spyRed, spyBlue, spyBlack },
-    },
     color,
+    theme: {
+      game: { spyBlack, spyBlue, spyRed },
+    },
   }) => (color === 'red' ? spyRed : color === 'blue' ? spyBlue : spyBlack)};
   font-variant: small-caps;
   text-transform: capitalize;
@@ -175,8 +176,8 @@ const Game = ({ id }: Props) => {
                   placement="bottom"
                 >
                   <IconButton
-                    onClick={rotateKey}
                     disabled={gameState.gameStarted}
+                    onClick={rotateKey}
                   >
                     <Icon name="sync" />
                   </IconButton>
@@ -187,9 +188,9 @@ const Game = ({ id }: Props) => {
               {gameState.gameOver ? (
                 <ColoredHeading color="black">Game Over</ColoredHeading>
               ) : (
-                <ColoredHeading onClick={pass} color={gameState.turn}>
+                <ColoredHeading color={gameState.turn} onClick={pass}>
                   {gameState.turn} team&apos;s turn
-                  <Icon name="step-forward" css="margin-left: 20px;" />
+                  <Icon css="margin-left: 20px;" name="step-forward" />
                 </ColoredHeading>
               )}
             </FlowCenter>
@@ -226,31 +227,31 @@ const Game = ({ id }: Props) => {
             placement="bottom"
           >
             <Icon
+              color={esConnected ? 'success' : 'danger'}
               css=" && { margin-right: 20px; margin-left: 0; }"
               name={esConnected ? 'wifi' : 'user-slash'}
-              color={esConnected ? 'success' : 'danger'}
             />
           </OverlayTrigger>
         </FlowRight>
       </Heading>
       {!player ? (
-        <JoinGame id={id} clientId={clientId} />
+        <JoinGame clientId={clientId} id={id} />
       ) : (
         <WordBoard
-          player={player}
           gameState={gameState}
           onTileSelected={selectTile}
+          player={player}
         />
       )}
       {newRoundModalShown && (
         <ConfirmModal
-          title="Are you sure?"
           message="The game is still in progress, do you really want to start a new round now?"
           onCancel={() => setNewRoundModalShown(false)}
           onConfirm={() => {
             newRound();
             setNewRoundModalShown(false);
           }}
+          title="Are you sure?"
         />
       )}
     </>

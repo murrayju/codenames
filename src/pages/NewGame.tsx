@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+
 import NewGame from '../components/NewGame';
 
 const NewGameRoute: FC = () => <NewGame />;

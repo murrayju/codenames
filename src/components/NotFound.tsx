@@ -2,11 +2,11 @@ import React, { FC } from 'react';
 import { Grid } from 'react-bootstrap';
 
 interface Props {
-  title?: string;
   detail?: string;
+  title?: string;
 }
 
-const NotFound: FC<Props> = ({ title = 'Page Not Found', detail = '' }) => (
+const NotFound: FC<Props> = ({ detail = '', title = 'Page Not Found' }) => (
   <Grid>
     <h1>{title}</h1>
     <p>Sorry, the page you were trying to view does not exist.</p>

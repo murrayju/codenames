@@ -1,16 +1,16 @@
-import fs from 'fs-extra';
 import {
   buildLog,
-  getVersion,
-  getDockerRepo,
-  getDockerId,
-  getUniqueBuildTag,
   dockerBuild,
-  dockerTag,
-  dockerImages,
   dockerComposeRunService,
   dockerComposeTeardown,
+  dockerImages,
+  dockerTag,
+  getDockerId,
+  getDockerRepo,
+  getUniqueBuildTag,
+  getVersion,
 } from 'build-strap';
+import fs from 'fs-extra';
 
 export async function getBuilderTag() {
   return `builder-${await getUniqueBuildTag()}`;

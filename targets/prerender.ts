@@ -1,13 +1,15 @@
 // Pre-render the app into static HTML.
 // run `yarn generate` and then `dist/static` can be served as a static site.
 
-import { readFile, readdir } from 'node:fs/promises';
+import { run } from 'build-strap';
 import { outputFile } from 'fs-extra';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { run } from 'build-strap';
-import build from './build';
+
 import { RenderResult } from '../src/entry-server.js';
+
+import build from './build';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const resolve = (p: string) => path.resolve(dirname, p);
@@ -38,7 +40,7 @@ export default async function prerender() {
   for (const url of routesToPrerender) {
     const context = {};
     const renderResult: RenderResult = await render(url, context);
-    const { appHtml, appCss } = renderResult;
+    const { appCss, appHtml } = renderResult;
 
     const html = template
       .replace(`<!--app-html-->`, appHtml)
@@ -47,6 +49,6 @@ export default async function prerender() {
 
     const filePath = `../dist/static${url === '/' ? '/index' : url}.html`;
     await outputFile(resolve(filePath), html);
-    console.log('pre-rendered:', filePath);
+    console.info('pre-rendered:', filePath);
   }
 }

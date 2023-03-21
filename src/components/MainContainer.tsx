@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 interface Props {
-  row?: boolean;
   alignItems?: string;
+  row?: boolean;
 }
 
 const MainContainer = styled.div<Props>`

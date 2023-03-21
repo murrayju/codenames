@@ -1,5 +1,5 @@
-import { ESLint } from 'eslint';
 import { buildLog } from 'build-strap';
+import { ESLint } from 'eslint';
 
 // Lint the source using eslint
 export default async function eslint(autoFix = process.argv.includes('--fix')) {
@@ -15,14 +15,14 @@ export default async function eslint(autoFix = process.argv.includes('--fix')) {
   ]);
   if (autoFix) {
     buildLog('applying automatic eslint fixes');
-    ESLint.outputFixes(reports);
+    await ESLint.outputFixes(reports);
   }
   if (
     reports.length &&
     reports.some((report) => report.errorCount || report.warningCount)
   ) {
     const formatter = await engine.loadFormatter();
-    buildLog(`eslint results:\n${formatter.format(reports)}`);
+    buildLog(`eslint results:\n${await formatter.format(reports)}`);
   }
   if (reports.some((report) => report.errorCount)) {
     throw new Error('Linting failed');

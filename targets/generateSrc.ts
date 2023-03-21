@@ -1,6 +1,6 @@
 import { buildLog, getVersionCode } from 'build-strap';
-import prettier from 'prettier';
 import fs from 'fs-extra';
+import prettier from 'prettier';
 
 // Pass the generated code through eslint,
 // which auto-formats it and write out the clean output file

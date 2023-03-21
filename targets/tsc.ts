@@ -1,7 +1,6 @@
+import { buildLog, spawn } from 'build-strap';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-import { buildLog, spawn } from 'build-strap';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 

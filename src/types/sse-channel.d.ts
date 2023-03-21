@@ -6,19 +6,19 @@ declare module 'sse-channel' {
 
   interface MessageObj {
     data?: unknown;
-    id?: string;
     event?: string;
+    id?: string;
     retry?: number;
   }
 
   type Message = string | MessageObj;
 
   interface Options {
-    historySize?: number;
     history?: Message[];
-    retryTimeout?: number;
-    pingInterval?: number;
+    historySize?: number;
     jsonEncode?: boolean;
+    pingInterval?: number;
+    retryTimeout?: number;
   }
 
   class SseChannel<

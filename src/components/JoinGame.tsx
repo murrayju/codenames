@@ -1,24 +1,24 @@
 /* eslint-disable react/no-unknown-property */
 import React, { FormEvent, useCallback, useContext, useState } from 'react';
-import { useCookies } from 'react-cookie';
 import {
-  Form,
-  FormGroup,
-  Col,
-  FormControl,
-  ControlLabel,
   Button,
+  Col,
+  ControlLabel,
+  Form,
+  FormControl,
+  FormGroup,
 } from 'react-bootstrap';
+import { useCookies } from 'react-cookie';
 
-import AppContext from '../contexts/AppContext.js';
 import type { Player, Role, Team } from '../api/Game.js';
+import AppContext from '../contexts/AppContext.js';
 
 type Props = {
-  id: string;
   clientId: string;
+  id: string;
 };
 
-const Game = ({ id, clientId }: Props) => {
+const Game = ({ clientId, id }: Props) => {
   const { fetch } = useContext(AppContext);
   const [isSubmitting, setSubmitting] = useState(false);
   const [cookies, setCookie] = useCookies();
@@ -39,8 +39,8 @@ const Game = ({ id, clientId }: Props) => {
       setSubmitting(true);
       evt.preventDefault();
       fetch(`/api/game/${id}/join`, {
-        method: 'POST',
         body: JSON.stringify(playerInfo),
+        method: 'POST',
       })
         .catch((e) => console.error(e))
         .finally(() => setSubmitting(false));
@@ -49,7 +49,7 @@ const Game = ({ id, clientId }: Props) => {
   );
 
   return (
-    <Form horizontal noValidate autoComplete="off" onSubmit={submit}>
+    <Form autoComplete="off" horizontal noValidate onSubmit={submit}>
       <h1>Join Game: {id}</h1>
       <FormGroup>
         <Col componentClass={ControlLabel} sm={3}>
@@ -57,9 +57,7 @@ const Game = ({ id, clientId }: Props) => {
         </Col>
         <Col sm={9}>
           <FormControl
-            type="text"
-            placeholder="Name"
-            value={playerInfo.name}
+            disabled={isSubmitting}
             onChange={({
               // @ts-ignore
               currentTarget: { value: name },
@@ -67,7 +65,9 @@ const Game = ({ id, clientId }: Props) => {
               setCookie('codenames_name', name, { path: '/' });
               setPlayerInfo((p) => ({ ...p, name }));
             }}
-            disabled={isSubmitting}
+            placeholder="Name"
+            type="text"
+            value={playerInfo.name}
           />
         </Col>
       </FormGroup>
@@ -77,16 +77,16 @@ const Game = ({ id, clientId }: Props) => {
         </Col>
         <Col sm={9}>
           {['red', 'blue'].map((m) => (
-            <label key={m} htmlFor={m} css="padding-left: 10px;">
+            <label key={m} css="padding-left: 10px;" htmlFor={m}>
               <input
-                css="&& { margin-right: 5px; }"
-                type="radio"
-                id={m}
-                value={m}
                 checked={playerInfo.team === m}
+                css="&& { margin-right: 5px; }"
+                id={m}
                 onChange={({ currentTarget: { value: team } }) => {
                   setPlayerInfo((p) => ({ ...p, team: team as Team }));
                 }}
+                type="radio"
+                value={m}
               />
               {m}
             </label>
@@ -99,16 +99,16 @@ const Game = ({ id, clientId }: Props) => {
         </Col>
         <Col sm={9}>
           {['spymaster', 'operative'].map((m) => (
-            <label key={m} htmlFor={m} css="padding-left: 10px;">
+            <label key={m} css="padding-left: 10px;" htmlFor={m}>
               <input
-                css="&& { margin-right: 5px; }"
-                type="radio"
-                id={m}
-                value={m}
                 checked={playerInfo.role === m}
+                css="&& { margin-right: 5px; }"
+                id={m}
                 onChange={({ currentTarget: { value: role } }) => {
                   setPlayerInfo((p) => ({ ...p, role: role as Role }));
                 }}
+                type="radio"
+                value={m}
               />
               {m}
             </label>
@@ -116,8 +116,8 @@ const Game = ({ id, clientId }: Props) => {
         </Col>
       </FormGroup>
       <FormGroup>
-        <Col smOffset={3} sm={9}>
-          <Button type="submit" disabled={!valid || isSubmitting}>
+        <Col sm={9} smOffset={3}>
+          <Button disabled={!valid || isSubmitting} type="submit">
             Join Game
           </Button>
         </Col>

@@ -1,15 +1,16 @@
-import Router from 'express-promise-router';
-import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import { NextFunction, Request, Response } from 'express';
+import Router from 'express-promise-router';
 import { nanoid } from 'nanoid';
 
-import { Request, NextFunction, Response } from 'express';
-import { version } from '../util/version._generated_.js'; // eslint-disable-line import/no-unresolved
-import logger from '../util/logger.js';
-import WordList from './WordList.js';
-import Game from './Game.js';
 import { ApiResponse, GameApiResponse, ServerContext } from '../types/api.js';
 import { StatusError } from '../types/error.js';
+import logger from '../util/logger.js';
+import { version } from '../util/version._generated_.js'; // eslint-disable-line import/no-unresolved
+
+import Game from './Game.js';
+import WordList from './WordList.js';
 
 // Middleware factory
 export default function api(serverContext: ServerContext) {
@@ -24,8 +25,8 @@ export default function api(serverContext: ServerContext) {
     res.cookie('clientId', clientId);
     // namespace all extra parameters under req.ctx (more get added later)
     res.locals = {
-      correlationId: nanoid(),
       clientId,
+      correlationId: nanoid(),
       serverContext,
     };
     next();

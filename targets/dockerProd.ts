@@ -1,15 +1,16 @@
-import fs from 'fs-extra';
-import getPort from 'get-port';
 import {
   buildLog,
-  getDockerRepo,
-  dockerImages,
   dockerContainerRun,
+  dockerImages,
   dockerNetworkDelete,
   dockerTryStopContainer,
-  run,
+  getDockerRepo,
   onKillSignal,
+  run,
 } from 'build-strap';
+import fs from 'fs-extra';
+import getPort from 'get-port';
+
 import docker, {
   getBuildImage,
   getBuildTag,
@@ -62,14 +63,14 @@ export default async function dockerProd(
   try {
     if (integration) {
       ({
-        dockerUrl: dbHost,
         dockerPort: dbPort,
+        dockerUrl: dbHost,
         id: db,
       } = await runDbContainer());
     }
 
     const dockerPort = 80;
-    const localPort = await getPort({ port: 8008, host: '0.0.0.0' });
+    const localPort = await getPort({ host: '0.0.0.0', port: 8008 });
 
     buildLog(
       `Starting server, to be available at https://localhost:${localPort}`,
@@ -77,6 +78,7 @@ export default async function dockerProd(
 
     // Run the tests in the builder container
     await dockerContainerRun({
+      image: await getBuildImage(tag),
       runArgs: [
         '--rm',
         '-it',
@@ -98,7 +100,6 @@ export default async function dockerProd(
             ]
           : []),
       ],
-      image: await getBuildImage(tag),
     });
   } finally {
     // cleanup

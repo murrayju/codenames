@@ -1,14 +1,15 @@
-import path from 'path';
-import { nanoid } from 'nanoid';
-import fs from 'fs-extra';
-import SseChannel from 'sse-channel';
 import type { Request, Response } from 'express';
-
+import fs from 'fs-extra';
+import { nanoid } from 'nanoid';
+import path from 'path';
+import SseChannel from 'sse-channel';
 import { fileURLToPath } from 'url';
-import logger from '../util/logger.js';
-import WordList from './WordList.js';
+
+import type { ApiContext, ApiResponse } from '../types/api.js';
 import { allowDenyFilter } from '../util/array.js';
-import type { ApiResponse, ApiContext } from '../types/api.js';
+import logger from '../util/logger.js';
+
+import WordList from './WordList.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,10 +25,10 @@ const listImagesRandomly = async (subDir: string) =>
   );
 const getImages = async (key: TileType[]) => {
   const img = {
-    red: await listImagesRandomly('red'),
-    blue: await listImagesRandomly('blue'),
     assassin: await listImagesRandomly('assassin'),
+    blue: await listImagesRandomly('blue'),
     bystander: await listImagesRandomly('bystander'),
+    red: await listImagesRandomly('red'),
     unknown: [],
   };
   return key.map((k) => `${imageUrlRoot}/${k}/${img[k].splice(0, 1)[0]}`);
@@ -37,17 +38,17 @@ export type Team = 'red' | 'blue';
 export type TileType = Team | 'assassin' | 'bystander' | 'unknown';
 
 export interface GameState {
-  turn?: Team;
-  key?: null | TileType[];
-  revealTileImages?: null | string[];
-  words?: string[];
-  revealed?: boolean[];
-  totalRed?: number;
-  totalBlue?: number;
-  remainingRed?: number;
-  remainingBlue?: number;
-  gameStarted?: boolean;
   gameOver?: boolean;
+  gameStarted?: boolean;
+  key?: null | TileType[];
+  remainingBlue?: number;
+  remainingRed?: number;
+  revealTileImages?: null | string[];
+  revealed?: boolean[];
+  totalBlue?: number;
+  totalRed?: number;
+  turn?: Team;
+  words?: string[];
 }
 
 export type Role = 'spymaster' | 'operative';
@@ -61,10 +62,10 @@ export type Player = {
 
 export type GameDbData = {
   id: string;
-  wordListId?: string;
-  state?: GameState;
   players?: Player[];
+  state?: GameState;
   usedWords?: string[];
+  wordListId?: string;
 };
 
 type NewGameOptions = {
@@ -151,12 +152,12 @@ export default class Game {
 
   async serialize(): Promise<GameDbData> {
     await this.computeDerivedState();
-    const { id, state, wordListId, players } = this;
+    const { id, players, state, wordListId } = this;
     return {
       id,
+      players,
       state,
       wordListId,
-      players,
     };
   }
 
@@ -227,7 +228,7 @@ export default class Game {
         err ? reject(err) : resolve(),
       );
     });
-    this.#sse.send({ id: nanoid(), event: 'connected' }, [res]);
+    this.#sse.send({ event: 'connected', id: nanoid() }, [res]);
   }
 
   emitToSseClients(
@@ -247,21 +248,21 @@ export default class Game {
     const count = clients ? clients.length : this.#sse.getConnectionCount();
     this.#sse.send(
       {
-        id: (data?.id as string) || nanoid(),
-        event,
         data,
+        event,
+        id: (data?.id as string) || nanoid(),
       },
       // if sending to all clients, use null
       count === this.#sse.getConnectionCount() ? null : clients,
     );
     logger.debug(`emitted '${event}' event to ${count} client(s) via SSE`, {
-      event,
       data,
+      event,
     });
   }
 
   async computeDerivedState() {
-    const { remainingRed, remainingBlue, assassinated } =
+    const { assassinated, remainingBlue, remainingRed } =
       this.state.key?.reduce(
         (res, type, i) => {
           if (!this.state.revealed?.[i]) {
@@ -275,7 +276,7 @@ export default class Game {
           }
           return res;
         },
-        { remainingRed: 0, remainingBlue: 0, assassinated: false },
+        { assassinated: false, remainingBlue: 0, remainingRed: 0 },
       ) || {};
     this.state.remainingRed = remainingRed || 0;
     this.state.remainingBlue = remainingBlue || 0;

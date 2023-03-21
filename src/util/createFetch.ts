@@ -36,21 +36,21 @@ const addQs = (url: string, qs?: Record<string, string>) =>
  */
 function createFetch(fetch: Fetch, { baseUrl, cookie }: Options): CustomFetch {
   const defaults: RequestInit = {
-    method: 'POST',
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
+    method: 'POST',
   };
 
   const apiDefaults: RequestInit = {
     ...defaults,
-    mode: baseUrl ? 'cors' : 'same-origin',
     credentials: baseUrl ? 'include' : 'same-origin',
     headers: {
       ...defaults.headers,
       ...(cookie ? { Cookie: cookie } : null),
     },
+    mode: baseUrl ? 'cors' : 'same-origin',
   };
 
   return async (url: string, passedOptions?: FetchOptions) => {

@@ -1,10 +1,11 @@
 import React from 'react';
+import { Cookies, CookiesProvider } from 'react-cookie';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { CookiesProvider, Cookies } from 'react-cookie';
+
 import { App } from './App';
-import createFetch from './util/createFetch';
 import AppContext from './contexts/AppContext';
+import createFetch from './util/createFetch';
 
 declare global {
   interface Window {

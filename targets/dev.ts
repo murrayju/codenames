@@ -5,6 +5,7 @@ import {
   spawn,
 } from 'build-strap';
 import { ensureDir } from 'fs-extra';
+
 import { dockerTeardown, runDbContainer } from './docker';
 
 export default async function dev(runDb = !process.argv.includes('--no-db')) {

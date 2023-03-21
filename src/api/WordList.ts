@@ -1,13 +1,13 @@
 import config from '@murrayju/config';
-import { nanoid } from 'nanoid';
+import camelCase from 'camelcase';
 import union from 'lodash/union';
 import without from 'lodash/without';
-import camelCase from 'camelcase';
+import { nanoid } from 'nanoid';
 
 interface WordListDbData {
   id: string;
-  name?: string;
   list: string[];
+  name?: string;
 }
 
 interface WordListDbDataMap {

@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import type { Player, GameState } from '../api/Game.js';
+import type { GameState, Player } from '../api/Game.js';
+
 import WordTile from './WordTile.js';
 
 const Board = styled.div`
@@ -34,27 +35,27 @@ const PreloadImages = styled.div<PreloadImagesProps>`
 `;
 
 type Props = {
-  player: Player;
   gameState: GameState;
   onTileSelected: (index: number) => void;
+  player: Player;
 };
 
-const WordBoard = ({ player, gameState, onTileSelected }: Props) => {
+const WordBoard = ({ gameState, onTileSelected, player }: Props) => {
   if (!gameState) {
     return null;
   }
-  const { words, key, revealTileImages, revealed } = gameState;
+  const { key, revealTileImages, revealed, words } = gameState;
   return (
     <Board>
       {words?.map((word, i) => (
         <WordTile
           key={word}
-          word={word}
+          image={revealTileImages?.[i] || null}
+          onChoose={() => onTileSelected(i)}
+          revealed={revealed?.[i] || false}
           role={player.role}
           type={key?.[i] || 'unknown'}
-          image={revealTileImages?.[i] || null}
-          revealed={revealed?.[i] || false}
-          onChoose={() => onTileSelected(i)}
+          word={word}
         />
       ))}
       <PreloadImages urls={revealTileImages} />

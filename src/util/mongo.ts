@@ -6,24 +6,24 @@ interface DbCollection {
 }
 
 interface DbConfig {
-  url: string;
-  name: string;
-  user: string;
-  password: string;
   collections: Record<string, DbCollection>;
+  name: string;
+  password: string;
+  url: string;
+  user: string;
 }
 
 let mongoDb: null | Db = null;
 let mongoClient: null | MongoClient = null;
 
-export async function init(): Promise<{ db: Db; client: MongoClient }> {
-  const { url, user, password } = config.get<DbConfig>('db');
+export async function init(): Promise<{ client: MongoClient; db: Db }> {
+  const { password, url, user } = config.get<DbConfig>('db');
   const client = await MongoClient.connect(url, {
     ...(user && password
       ? {
           auth: {
-            username: user,
             password,
+            username: user,
           },
         }
       : null),
@@ -45,7 +45,7 @@ export async function init(): Promise<{ db: Db; client: MongoClient }> {
     }),
   );
 
-  return { db, client };
+  return { client, db };
 }
 
 export async function destroy(passed: null | Db | MongoClient = mongoClient) {

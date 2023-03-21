@@ -1,5 +1,5 @@
-import styled, { css } from 'styled-components';
 import { darken, readableColor, transparentize } from 'polished';
+import styled, { css } from 'styled-components';
 
 const brandColors = [
   'default',

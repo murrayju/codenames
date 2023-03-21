@@ -1,6 +1,5 @@
-import { createRequire } from 'module';
-
 import { run, runCli, setPkg } from 'build-strap';
+import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 
