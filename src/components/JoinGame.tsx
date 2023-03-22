@@ -46,7 +46,7 @@ const JoinGame = ({ clientId, id }: Props) => {
         .catch((e) => console.error(e))
         .finally(() => setSubmitting(false));
     },
-    [fetch],
+    [fetch, playerInfo],
   );
 
   const handleEditName = useCallback((evt: ChangeEvent<HTMLInputElement>) => {

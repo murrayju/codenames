@@ -2,7 +2,33 @@ import cn from 'classnames';
 import React from 'react';
 import styled from 'styled-components';
 
-import { ColorProps, propsColor } from './IconButton.js';
+const brandColors = [
+  'default',
+  'primary',
+  'success',
+  'info',
+  'warning',
+  'danger',
+] as const;
+
+type Color = (typeof brandColors)[number];
+
+export type ColorProps = {
+  color?: Color;
+  theme: {
+    brand: Record<Color, string>;
+  };
+} & Partial<Record<Color, boolean>>;
+
+export const propsColor = (props: ColorProps): string | null =>
+  props.color
+    ? brandColors.includes(props.color)
+      ? props.theme.brand[props.color]
+      : props.color
+    : brandColors.reduceRight<string | false | undefined>(
+        (prev, c) => prev || (props[c] && props.theme.brand[c]),
+        false,
+      ) || null;
 
 export type IconName =
   | '500px'

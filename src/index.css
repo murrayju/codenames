@@ -15,4 +15,12 @@
   .btn-black {
     @apply bg-zinc-900 text-white hover:bg-zinc-700 focus:bg-zinc-700 active:bg-zinc-800;
   }
+
+  .badge {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md px-[0.65em] pt-[0.35em] pb-[0.25em] text-center align-baseline text-[0.75em] font-bold leading-none;
+  }
+
+  .small-caps {
+    font-variant: small-caps;
+  }
 }

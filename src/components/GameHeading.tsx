@@ -1,46 +1,13 @@
 import cn from 'classnames';
 import React, { FC, useContext, useState } from 'react';
 import { useCookies } from 'react-cookie';
-import styled from 'styled-components';
 
 import type { GameDbData } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
 
 import { ConfirmModal } from './ConfirmModal.js';
-import { FlowCenter, FlowLeft } from './flex.js';
 import Icon from './Icon.js';
-import IconButton from './IconButton.js';
 import { Tooltip, TooltipContent, TooltipTrigger } from './Tooltip.js';
-
-const Badge = styled.span`
-  background-color: ${({ theme: { game } }) => game.spyBlack};
-  color: ${({ theme: { game } }) => game.spyWhite};
-  margin: 5px;
-  padding: 10px;
-  font-size: 2em;
-  font-family: monospaced;
-`;
-
-const ColoredBadge = styled(Badge)`
-  background-color: ${({
-    color,
-    theme: {
-      game: { spyBlack, spyBlue, spyRed },
-    },
-  }) => (color === 'red' ? spyRed : color === 'blue' ? spyBlue : spyBlack)};
-`;
-
-const ColoredHeading = styled.h2`
-  color: ${({
-    color,
-    theme: {
-      game: { spyBlack, spyBlue, spyRed },
-    },
-  }) => (color === 'red' ? spyRed : color === 'blue' ? spyBlue : spyBlack)};
-  font-variant: small-caps;
-  text-transform: capitalize;
-  cursor: ${({ onClick }) => onClick && 'pointer'};
-`;
 
 type Props = {
   className?: string;
@@ -82,15 +49,15 @@ export const GameHeading: FC<Props> = ({
   };
 
   return gameState ? (
-    <div className={cn('flex flex-row', className)}>
+    <div className={cn('flex flex-row p-3', className)}>
       {player ? (
         <>
-          <FlowLeft>
-            <Tooltip>
-              <TooltipTrigger>
-                <ColoredBadge color="red">
+          <div className="flex flex-auto items-center justify-start">
+            <Tooltip placement="bottom">
+              <TooltipTrigger asChild>
+                <div className="badge bg-spy-red text-white text-lg">
                   {gameState.remainingRed}
-                </ColoredBadge>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 {`Red team has ${
@@ -98,11 +65,11 @@ export const GameHeading: FC<Props> = ({
                 } tiles remaining out of ${gameState.totalRed || 0} total`}
               </TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <ColoredBadge color="blue">
+            <Tooltip placement="bottom">
+              <TooltipTrigger asChild>
+                <div className="badge bg-spy-blue text-white text-lg ml-2">
                   {gameState.remainingBlue}
-                </ColoredBadge>
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 {`Blue team has ${
@@ -110,17 +77,19 @@ export const GameHeading: FC<Props> = ({
                 } tiles remaining out of ${gameState.totalBlue || 0} total`}
               </TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger>
-                <IconButton
+            <Tooltip placement="bottom">
+              <TooltipTrigger asChild>
+                <button
+                  className="ml-2"
                   onClick={() =>
                     gameState.gameStarted && !gameState.gameOver
                       ? setNewRoundModalShown(true)
                       : newRound()
                   }
+                  type="button"
                 >
-                  <Icon name="random" />
-                </IconButton>
+                  <Icon name="random" size={24} />
+                </button>
               </TooltipTrigger>
               <TooltipContent>
                 Shuffle the board and start a new round
@@ -128,44 +97,54 @@ export const GameHeading: FC<Props> = ({
             </Tooltip>
             {isSpyMaster && (
               <Tooltip>
-                <TooltipTrigger>
-                  <IconButton
+                <TooltipTrigger asChild>
+                  <button
+                    className="ml-2"
                     disabled={gameState.gameStarted}
                     onClick={rotateKey}
+                    type="button"
                   >
-                    <Icon name="sync" />
-                  </IconButton>
+                    <Icon name="sync" size={24} />
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent>
                   Rotate the spymaster key 90 degrees.
                 </TooltipContent>
               </Tooltip>
             )}
-          </FlowLeft>
-          <FlowCenter>
+          </div>
+          <div className="flex items-center justify-center flex-auto text-xl">
             {gameState.gameOver ? (
-              <ColoredHeading color="black">Game Over</ColoredHeading>
+              <h1 className="text-spy-black capitalize small-caps">
+                Game Over
+              </h1>
             ) : (
-              <ColoredHeading color={gameState.turn} onClick={pass}>
+              <button
+                className={cn(
+                  'flex items-center justify-center',
+                  gameState.turn === 'red' ? 'text-spy-red' : 'text-spy-blue',
+                )}
+                onClick={pass}
+                type="button"
+              >
                 {gameState.turn} team&apos;s turn
-                <Icon css="margin-left: 20px;" name="step-forward" />
-              </ColoredHeading>
+                <Icon className="ml-4" name="step-forward" />
+              </button>
             )}
-          </FlowCenter>
+          </div>
         </>
       ) : null}
-      <div className="flex flex-auto flex-row flex-wrap items-center justify-end px-3 py-1">
+      <div className="flex flex-auto flex-row flex-wrap items-center justify-end">
         <Tooltip placement="bottom">
           <TooltipTrigger asChild>
-            <IconButton
-              iconSize={24}
+            <button
               onClick={() =>
                 window.open(`https://meet.jit.si/codenames_${id}`, '_blank')
               }
-              smPad
+              type="button"
             >
-              <Icon name="video" />
-            </IconButton>
+              <Icon name="video" size={24} />
+            </button>
           </TooltipTrigger>
           <TooltipContent>
             Join video conference call using jitsi
