@@ -1,3 +1,4 @@
+import cn from 'classnames';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -1418,6 +1419,7 @@ type TextStyle =
 
 interface IconAttrs {
   bsStyle?: TextStyle;
+  className?: string;
   flipH?: boolean;
   flipV?: boolean;
   fw?: boolean;
@@ -1457,7 +1459,7 @@ const Icon = styled.i.attrs<IconAttrs>(
     solid,
     stack,
   }) => ({
-    className: [
+    className: cn(
       solid ? 'fas' : regular ? 'far' : 'fas',
       `fa-${name}`,
       li && 'fa-li',
@@ -1470,24 +1472,21 @@ const Icon = styled.i.attrs<IconAttrs>(
       flipV && 'fa-flip-vertical',
       stack && `fa-stack-${stack}`,
       bsStyle && `text-${bsStyle}`,
-    ]
-      .filter((c) => c)
-      .join(' '),
+    ),
   }),
 )<IconProps>`
   font-size: ${({ size }) => (typeof size === 'number' ? `${size}px` : size)};
   color: ${(props) => propsColor(props)};
-  padding: 0
-    ${({ lgPad, mdPad, pad, smPad }) =>
-      pad === 'sm' && !!smPad
-        ? '.25em'
-        : pad === 'md' && !!mdPad
-        ? '.40em'
-        : pad === 'lg' && !!lgPad
-        ? '.55em'
-        : typeof pad === 'number'
-        ? `${pad}px`
-        : pad};
+  padding: ${({ lgPad, mdPad, pad, smPad }) =>
+    pad === 'sm' || !!smPad
+      ? '.25em'
+      : pad === 'md' || !!mdPad
+      ? '.40em'
+      : pad === 'lg' || !!lgPad
+      ? '.55em'
+      : typeof pad === 'number'
+      ? `${pad}px`
+      : pad};
 `;
 
 export default Icon;

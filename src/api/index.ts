@@ -23,7 +23,6 @@ export default function api(serverContext: ServerContext) {
     // use a cookie to identify clients
     const clientId = req.cookies.clientId || nanoid();
     res.cookie('clientId', clientId);
-    // namespace all extra parameters under req.ctx (more get added later)
     res.locals = {
       clientId,
       correlationId: nanoid(),

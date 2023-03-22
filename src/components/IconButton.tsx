@@ -4,7 +4,6 @@ import styled, { css } from 'styled-components';
 const brandColors = [
   'default',
   'primary',
-  'primaryDark',
   'success',
   'info',
   'warning',
@@ -32,9 +31,13 @@ export const propsColor = (props: ColorProps): string | null =>
 
 interface Props extends ColorProps {
   iconSize?: number | string;
+  lgPad?: boolean;
+  mdPad?: boolean;
+  pad?: 'sm' | 'md' | 'lg' | number | string;
   radius?: number | string;
   raised?: boolean;
   size?: number | string;
+  smPad?: boolean;
   text?: boolean;
   textColor?: string;
 }
@@ -44,7 +47,16 @@ const IconButton = styled.button<Props>`
   color: ${(props) =>
     props.textColor ||
     transparentize(0.2, readableColor(propsColor(props) || '#fff'))};
-  padding: 0.5em;
+  padding: ${({ lgPad, mdPad, pad, smPad }) =>
+    pad === 'sm' || !!smPad
+      ? '.25em'
+      : pad === 'md' || !!mdPad
+      ? '.40em'
+      : pad === 'lg' || !!lgPad
+      ? '.55em'
+      : typeof pad === 'number'
+      ? `${pad}px`
+      : pad};
   overflow: visible;
   font-size: ${({ size }) =>
     typeof size === 'number' ? `${size}px` : size || '1.5rem'};

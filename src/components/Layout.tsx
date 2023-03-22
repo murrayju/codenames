@@ -1,51 +1,24 @@
-import { darken, position } from 'polished';
+import { darken } from 'polished';
 import React, { FC } from 'react';
 import type { ReactNode } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
+import colors from 'tailwindcss/colors';
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // external-global styles must be imported in your JS.
 import Footer from './Footer.js';
-import MainContainer from './MainContainer.js';
 
 // used by styled-components
-// this should match the values in aura
-export const bsTheme = {
+export const scTheme = {
   brand: {
-    // DMA Red
-    black: '#000',
-
-    // DMA Orange
-    danger: '#d9534f',
-
-    // Used for text and other elements
-    gray1: '#222',
-
-    // Used for icons and secondary text
-    gray2: '#333',
-
-    // Used for watermarks and dark borders
-    gray3: '#555',
-
-    // Used for light borders
-    gray4: '#777',
-
-    // Used for off-white backgrounds
-    gray5: '#eee',
-
-    // DMA A green we use sometimes, subject to change.
-    info: '#5bc0de',
-
-    primary: '#337ab7',
-
-    // DMA Light blue
-    primaryDark: '#0962ac',
-
-    // DMA Dark blue
-    success: '#5cb85c',
-    warning: '#f0ad4e', // Used for button gradients and almost white objects
-    white: '#fff',
+    black: colors.slate[900],
+    danger: colors.red[600],
+    info: colors.blue[400],
+    primary: colors.blue[600],
+    success: colors.green[600],
+    warning: colors.amber[500],
+    white: colors.slate[50],
   },
   game: {
     cardDark: '#b3a18b',
@@ -54,14 +27,9 @@ export const bsTheme = {
     portraitBorder: '#e9d9c9',
     portraitBystander: darken(0.2, '#ccbfb6'),
     portraitUnknown: '#ccbfb6',
-    spyBlack: '#32312e',
-    spyBlue: '#003fff',
-    spyRed: '#ed2024',
-  },
-  primaryGradient: {
-    end: '#e2eaf0',
-    mid: '#71a3cc',
-    start: '#0962ac',
+    spyBlack: colors.zinc[900],
+    spyBlue: colors.blue[800],
+    spyRed: colors.red[800],
   },
   screen: {
     lgMin: '1695px',
@@ -76,48 +44,18 @@ export const bsTheme = {
   },
 };
 
-const PageRoot = styled.div`
-  ${position('fixed', 0, 0, 0, 0)};
-  width: 100%;
-  overflow: auto;
-  background-color: ${({ theme }) => theme.brand.gray5};
-`;
-
-const ContentRoot = styled.div`
-  display: flex;
-  width: 100%;
-  flex: 1 1;
-  flex-flow: column;
-  align-items: center;
-  overflow: auto;
-`;
-
 interface Props {
-  alignItems?: string;
   children: ReactNode;
-  container?: boolean;
-  row?: boolean;
 }
 
-const Layout: FC<Props> = ({
-  alignItems = 'center',
-  children,
-  container = false,
-  row = false,
-}) => (
-  <ThemeProvider theme={bsTheme}>
-    <PageRoot>
-      <ContentRoot>
-        {container ? (
-          <MainContainer alignItems={alignItems} row={row}>
-            {children}
-          </MainContainer>
-        ) : (
-          children
-        )}
-      </ContentRoot>
+const Layout: FC<Props> = ({ children }) => (
+  <ThemeProvider theme={scTheme}>
+    <div className="fixed inset-0 bg-stone-200 flex flex-col overflow-auto">
+      <div className="flex flex-col flex-auto items-center justify-center overflow-auto">
+        {children}
+      </div>
       <Footer />
-    </PageRoot>
+    </div>
   </ThemeProvider>
 );
 

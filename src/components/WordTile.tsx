@@ -4,14 +4,14 @@ import styled from 'styled-components';
 import type { Role, TileType } from '../api/Game.js';
 
 import Icon, { IconName } from './Icon.js';
-import { bsTheme } from './Layout.js';
+import { scTheme } from './Layout.js';
 
 const portraitColors = {
-  assassin: bsTheme.game.spyBlack,
-  blue: bsTheme.game.spyBlue,
-  bystander: bsTheme.game.portraitBystander,
-  red: bsTheme.game.spyRed,
-  unknown: bsTheme.game.portraitUnknown,
+  assassin: scTheme.game.spyBlack,
+  blue: scTheme.game.spyBlue,
+  bystander: scTheme.game.portraitBystander,
+  red: scTheme.game.spyRed,
+  unknown: scTheme.game.portraitUnknown,
 };
 
 const portraitIcons: Record<TileType, IconName> = {
@@ -23,11 +23,11 @@ const portraitIcons: Record<TileType, IconName> = {
 };
 
 const borderColors = {
-  assassin: bsTheme.game.spyBlack,
-  blue: bsTheme.game.spyBlue,
-  bystander: bsTheme.game.cardDark,
-  red: bsTheme.game.spyRed,
-  unknown: bsTheme.game.cardDark,
+  assassin: scTheme.game.spyBlack,
+  blue: scTheme.game.spyBlue,
+  bystander: scTheme.game.cardDark,
+  red: scTheme.game.spyRed,
+  unknown: scTheme.game.cardDark,
 };
 
 interface TileProps {

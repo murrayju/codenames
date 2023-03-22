@@ -6,6 +6,7 @@ import NotFound from './components/NotFound';
 import Game from './pages/Game';
 import NewGame from './pages/NewGame';
 import Root from './pages/Root';
+import './index.css';
 
 export const App: FC = () => {
   return (

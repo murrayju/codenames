@@ -1,29 +1,21 @@
 import React from 'react';
-import styled from 'styled-components';
 
 import useVersion from '../hooks/useVersion.js';
 
 import Icon from './Icon.js';
 
-const Box = styled.div`
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  justify-content: center;
-`;
-
 const Footer = () => {
   const [version] = useVersion();
 
   return (
-    <Box>
-      <h3>
+    <div className="flex flex-col items-center justify-center p-2">
+      <h3 className="text-md font-mono">
         <Icon name="search" />
         C0D3N4M3S
       </h3>
-      <p>Copyright 2020 Justin Murray</p>
-      {version ? <small>v{version}</small> : null}
-    </Box>
+      <p className="text-sm">Copyright 2023 - Justin Murray</p>
+      {version ? <p className="text-xs text-neutral-500">v{version}</p> : null}
+    </div>
   );
 };
 
