@@ -53,10 +53,11 @@ export default function api(serverContext: ServerContext) {
     async (req: Request, res: GameApiResponse, next: NextFunction) => {
       const game = await Game.find(res.locals, req.params.id);
       if (!game) {
-        return res.status(404).send('Not found');
+        res.status(404).send('Not found');
+        return;
       }
       res.locals.game = game;
-      return next();
+      next();
     },
   );
 
@@ -136,7 +137,7 @@ export default function api(serverContext: ServerContext) {
       }
       logger.log(logLevel, err.toString(), err);
       const { message } = err;
-      return res.status(statusCode).json({ message });
+      res.status(statusCode).json({ message });
     },
   );
 

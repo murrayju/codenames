@@ -55,82 +55,80 @@ const JoinGame = ({ clientId, id }: Props) => {
   }, []);
 
   return (
-    <div className="flex flex-col flex-auto items-center justify-center">
-      <div>
-        <h1 className="text-2xl">Join Game: {id}</h1>
-        <input
-          className="my-2 border-none rounded-md outline-none placeholder:italic px-3 drop-shadow-sm"
-          onChange={handleEditName}
-          placeholder="Name"
-          type="text"
-          value={playerInfo.name}
-        />
-        <h2 className="text-lg mt-2">Team</h2>
-        {['red', 'blue'].map((m) => (
-          <label
-            key={m}
+    <div>
+      <h1 className="text-2xl">Join Game: {id}</h1>
+      <input
+        className="my-2 border-none rounded-md outline-none placeholder:italic px-3 drop-shadow-sm"
+        onChange={handleEditName}
+        placeholder="Name"
+        type="text"
+        value={playerInfo.name}
+      />
+      <h2 className="text-lg mt-2">Team</h2>
+      {['red', 'blue'].map((m) => (
+        <label
+          key={m}
+          className={cn(
+            'p-2',
+            { blue: 'text-spy-blue', red: 'text-spy-red' }[m],
+          )}
+          htmlFor={m}
+        >
+          <input
+            checked={playerInfo.team === m}
+            className="mr-2"
+            id={m}
+            onChange={({ currentTarget: { value: team } }) => {
+              setPlayerInfo((p) => ({ ...p, team: team as Team }));
+            }}
+            type="radio"
+            value={m}
+          />
+          {m}
+        </label>
+      ))}
+      <h2 className="text-lg mt-2">Role</h2>
+      {['spymaster', 'operative'].map((m) => (
+        <label key={m} className="p-2" htmlFor={m}>
+          <input
+            checked={playerInfo.role === m}
+            className="mr-2"
+            id={m}
+            onChange={({ currentTarget: { value: role } }) => {
+              setPlayerInfo((p) => ({ ...p, role: role as Role }));
+            }}
+            type="radio"
+            value={m}
+          />
+          {m}
+        </label>
+      ))}
+      <div className="mt-8 flex justify-end">
+        <button
+          className={cn(
+            'btn',
+            playerInfo.role === 'spymaster'
+              ? 'btn-black'
+              : { blue: 'btn-blue', red: 'btn-red' }[playerInfo.team],
+          )}
+          disabled={!valid || isSubmitting}
+          onClick={handleJoinGame}
+          type="button"
+        >
+          <Icon
             className={cn(
-              'p-2',
-              { blue: 'text-spy-blue', red: 'text-spy-red' }[m],
-            )}
-            htmlFor={m}
-          >
-            <input
-              checked={playerInfo.team === m}
-              className="mr-2"
-              id={m}
-              onChange={({ currentTarget: { value: team } }) => {
-                setPlayerInfo((p) => ({ ...p, team: team as Team }));
-              }}
-              type="radio"
-              value={m}
-            />
-            {m}
-          </label>
-        ))}
-        <h2 className="text-lg mt-2">Role</h2>
-        {['spymaster', 'operative'].map((m) => (
-          <label key={m} className="p-2" htmlFor={m}>
-            <input
-              checked={playerInfo.role === m}
-              className="mr-2"
-              id={m}
-              onChange={({ currentTarget: { value: role } }) => {
-                setPlayerInfo((p) => ({ ...p, role: role as Role }));
-              }}
-              type="radio"
-              value={m}
-            />
-            {m}
-          </label>
-        ))}
-        <div className="mt-8 flex justify-end">
-          <button
-            className={cn(
-              'btn',
+              'pr-2',
               playerInfo.role === 'spymaster'
-                ? 'btn-black'
-                : { blue: 'btn-blue', red: 'btn-red' }[playerInfo.team],
+                ? { blue: 'text-blue-500', red: 'text-red-500' }[
+                    playerInfo.team
+                  ]
+                : '',
             )}
-            disabled={!valid || isSubmitting}
-            onClick={handleJoinGame}
-            type="button"
-          >
-            <Icon
-              className={cn(
-                'pr-2',
-                playerInfo.role === 'spymaster'
-                  ? { blue: 'text-blue-500', red: 'text-red-500' }[
-                      playerInfo.team
-                    ]
-                  : '',
-              )}
-              name={playerInfo.role === 'spymaster' ? 'user-secret' : 'user'}
-              size={22}
-            />
-            Join Game
-          </button>
-        </div>
+            name={playerInfo.role === 'spymaster' ? 'user-secret' : 'user'}
+            size={22}
+          />
+          Join Game
+        </button>
       </div>
     </div>
   );

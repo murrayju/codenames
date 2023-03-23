@@ -59,22 +59,24 @@ const Game: FC<Props> = ({ id }) => {
   };
 
   return (
-    <div className="flex flex-col flex-auto w-full">
+    <div className="flex flex-col flex-auto w-full overflow-auto">
       <GameHeading
         className="flex-none"
         esConnected={esConnected}
         game={game}
         id={id}
       />
-      {!player ? (
-        <JoinGame clientId={clientId} id={id} />
-      ) : (
-        <WordBoard
-          gameState={gameState}
-          onTileSelected={selectTile}
-          player={player}
-        />
-      )}
+      <div className="flex flex-col flex-auto items-center justify-center overflow-auto">
+        {!player ? (
+          <JoinGame clientId={clientId} id={id} />
+        ) : (
+          <WordBoard
+            gameState={gameState}
+            onTileSelected={selectTile}
+            player={player}
+          />
+        )}
+      </div>
     </div>
   );
 };

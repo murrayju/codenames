@@ -9,11 +9,11 @@ const Footer = () => {
 
   return (
     <div className="flex flex-col items-center justify-center p-2">
-      <h3 className="text-md font-mono">
+      <h3 className="text-sm font-mono">
         <Icon name="search" />
         C0D3N4M3S
       </h3>
-      <p className="text-sm">Copyright 2023 - Justin Murray</p>
+      <p className="text-xs">Copyright 2023 - Justin Murray</p>
       {version ? <p className="text-xs text-neutral-500">v{version}</p> : null}
     </div>
   );

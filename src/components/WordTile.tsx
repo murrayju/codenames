@@ -147,7 +147,7 @@ const Person = styled.div<PersonProps>`
 
   > i {
     color: ${({ type }) => portraitColors[type]};
-    font-size: 6.5em;
+    font-size: 5.5em;
     padding: 0;
     margin: 0;
   }
@@ -155,7 +155,7 @@ const Person = styled.div<PersonProps>`
     (max-height: ${({ theme }) => theme.screen.lgMinHt}) {
     bottom: 4px;
     > i {
-      font-size: 4.25em;
+      font-size: 3.25em;
     }
   }
   @media (max-width: ${({ theme }) => theme.screen.mdMin}),
@@ -163,7 +163,7 @@ const Person = styled.div<PersonProps>`
     bottom: 3px;
     padding: 4px;
     > i {
-      font-size: 2.2em;
+      font-size: 1.6em;
       margin-bottom: -2px;
     }
   }
