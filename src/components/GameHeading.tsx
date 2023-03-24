@@ -95,15 +95,10 @@ export const GameHeading: FC<Props> = ({
                 Shuffle the board and start a new round
               </TooltipContent>
             </Tooltip>
-            {isSpyMaster && (
+            {isSpyMaster && !gameState.gameStarted ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button
-                    className="ml-2"
-                    disabled={gameState.gameStarted}
-                    onClick={rotateKey}
-                    type="button"
-                  >
+                  <button className="ml-2" onClick={rotateKey} type="button">
                     <Icon name="sync" size={24} />
                   </button>
                 </TooltipTrigger>
@@ -111,7 +106,7 @@ export const GameHeading: FC<Props> = ({
                   Rotate the spymaster key 90 degrees.
                 </TooltipContent>
               </Tooltip>
-            )}
+            ) : null}
           </div>
           <div className="flex items-center justify-center flex-auto text-xl">
             {gameState.gameOver ? (
