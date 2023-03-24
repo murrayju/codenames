@@ -26,7 +26,7 @@ export const GameHeading: FC<Props> = ({
   const [newRoundModalShown, setNewRoundModalShown] = useState(false);
   const [cookies] = useCookies();
   const { clientId } = cookies;
-  const player = game?.players?.find((p) => p.id === clientId) || null;
+  const player = game?.players?.[clientId] || null;
   const isSpyMaster = player?.role === 'spymaster';
   const gameState = game.state;
 

@@ -22,12 +22,13 @@ const Game: FC<Props> = ({ id }) => {
   const [notFound, setNotFound] = useState(false);
   const [cookies] = useCookies();
   const { clientId } = cookies;
-  const player = game?.players?.find((p) => p.id === clientId) || null;
+  const player = game?.players?.[clientId] || null;
 
   const handleEsConnect = useCallback((es: EventSourcePolyfill) => {
     // @ts-ignore
     es.addEventListener('stateChanged', ({ data: rawData }) => {
       const data: GameDbData = JSON.parse(rawData);
+      console.debug('stateChanged', data);
       setGame(data);
     });
   }, []);

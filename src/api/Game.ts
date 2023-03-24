@@ -60,9 +60,13 @@ export type Player = {
   team: Team;
 };
 
+interface PlayerMap {
+  [id: string]: Player | undefined;
+}
+
 export type GameDbData = {
   id: string;
-  players?: Player[];
+  players?: PlayerMap;
   state?: GameState;
   usedWords?: string[];
   wordListId?: string;
@@ -75,42 +79,44 @@ type NewGameOptions = {
 const gamesCache = new Map<string, Game>();
 
 export default class Game {
-  #data: GameDbData;
+  private data: GameDbData;
 
-  #wordList: null | WordList = null;
+  private wordList: null | WordList = null;
 
-  #sse: SseChannel;
+  private sse: SseChannel;
 
-  #sseClients: Map<string, Set<Response>>;
+  // map from clientId to set of SSE connections (Response objects)
+  private sseClients: Map<string, Set<Response>>;
 
-  #sseConnections: WeakMap<Response, string>;
+  // map from SSE connection (Response object) to clientId
+  private sseConnections: WeakMap<Response, string>;
 
   constructor(data: GameDbData) {
-    this.#data = data;
-    this.#sseClients = new Map();
-    this.#sseConnections = new WeakMap();
-    this.#sse = new SseChannel<Request, ApiResponse>({ jsonEncode: true })
+    this.data = data;
+    this.sseClients = new Map();
+    this.sseConnections = new WeakMap();
+    this.sse = new SseChannel<Request, ApiResponse>({ jsonEncode: true })
       .on('connect', (channel, req, res) => {
         const { clientId } = res.locals;
         logger.info('Client connected to SSE stream.', { clientId });
-        if (!this.#sseClients.has(clientId)) {
-          this.#sseClients.set(clientId, new Set());
+        if (!this.sseClients.has(clientId)) {
+          this.sseClients.set(clientId, new Set());
         }
-        this.#sseClients.get(clientId)?.add(res);
-        this.#sseConnections.set(res, clientId);
+        this.sseClients.get(clientId)?.add(res);
+        this.sseConnections.set(res, clientId);
       })
       .on('disconnect', (channel, res) => {
-        const clientId = this.#sseConnections.get(res);
+        const clientId = this.sseConnections.get(res);
         logger.info('Client disconnected from SSE stream.', {
           clientId,
         });
-        this.#sseConnections.delete(res);
+        this.sseConnections.delete(res);
         if (clientId) {
-          this.#sseClients.get(clientId)?.delete(res);
-          if (this.#sseClients.get(clientId)?.size === 0) {
-            this.#sseClients.delete(clientId);
+          this.sseClients.get(clientId)?.delete(res);
+          if (this.sseClients.get(clientId)?.size === 0) {
+            this.sseClients.delete(clientId);
           }
-          if (this.#sseClients.size === 0) {
+          if (this.sseClients.size === 0) {
             logger.info('All clients disconnected');
           }
         }
@@ -118,45 +124,74 @@ export default class Game {
   }
 
   get id() {
-    return this.#data.id;
+    return this.data.id;
   }
 
   get wordListId(): string {
-    return this.#data.wordListId || 'standard';
+    return this.data.wordListId || 'standard';
   }
 
-  get players(): Player[] {
-    return this.#data.players || [];
+  get players(): PlayerMap {
+    this.data.players ??= {};
+    return this.data.players;
+  }
+
+  get spymasters(): PlayerMap {
+    return Object.values(this.players).reduce((acc, p) => {
+      if (p?.role === 'spymaster') {
+        acc[p.id] = p;
+      }
+      return acc;
+    }, {} as PlayerMap);
+  }
+
+  get operatives(): PlayerMap {
+    return Object.values(this.players).reduce((acc, p) => {
+      if (p?.role === 'operative') {
+        acc[p.id] = p;
+      }
+      return acc;
+    }, {} as PlayerMap);
   }
 
   get usedWords(): WordList {
     return new WordList({
       id: `used-${this.id}`,
-      list: this.#data.usedWords || [],
+      list: this.data.usedWords || [],
     });
   }
 
   async getWordList(): Promise<WordList> {
-    if (!this.#wordList) {
-      this.#wordList = await WordList.get(this.wordListId);
+    if (!this.wordList) {
+      this.wordList = await WordList.get(this.wordListId);
     }
-    return this.#wordList;
+    return this.wordList;
   }
 
   get state(): GameState {
-    if (!this.#data.state) {
-      this.#data.state = {};
+    if (!this.data.state) {
+      this.data.state = {};
     }
-    return this.#data.state;
+    return this.data.state;
   }
 
-  async serialize(): Promise<GameDbData> {
-    await this.computeDerivedState();
-    const { id, players, state, wordListId } = this;
+  get maskedState(): GameState {
+    return {
+      ...this.state,
+      key: null,
+      revealTileImages: this.state.revealTileImages?.map(
+        (url, i) => (this.state.revealed?.[i] && url) || '',
+      ),
+    };
+  }
+
+  serialize(masked: boolean): GameDbData {
+    this.computeDerivedState();
+    const { id, players, wordListId } = this;
     return {
       id,
       players,
-      state,
+      state: masked ? this.maskedState : this.state,
       wordListId,
     };
   }
@@ -165,7 +200,7 @@ export default class Game {
     const baseList = await this.getWordList();
     const unusedList = baseList.without(this.usedWords);
     if (unusedList.size < 25) {
-      this.#data.usedWords = [];
+      this.data.usedWords = [];
       this.state.words = baseList.getRandomList(25);
     } else {
       this.state.words = unusedList.getRandomList(25);
@@ -208,7 +243,7 @@ export default class Game {
   }
 
   async newRound() {
-    this.#data.state = {};
+    this.data.state = {};
     this.state.revealed = Array.from({ length: 25 }).map(() => false);
     await this.newWords();
     await this.newKey();
@@ -216,44 +251,44 @@ export default class Game {
 
   async delete() {
     this.emitToSseClients('connectionClosing');
-    this.#sse.close();
-    this.#sseClients.clear();
-    this.#sseConnections = new WeakMap();
+    this.sse.close();
+    this.sseClients.clear();
+    this.sseConnections = new WeakMap();
     gamesCache.delete(this.id);
   }
 
   async connectSseClient(req: Request, res: Response): Promise<void> {
     await new Promise<void>((resolve, reject) => {
-      this.#sse.addClient(req, res, (err?: Error) =>
+      this.sse.addClient(req, res, (err?: Error) =>
         err ? reject(err) : resolve(),
       );
     });
-    this.#sse.send({ event: 'connected', id: nanoid() }, [res]);
+    this.sse.send({ event: 'connected', id: nanoid() }, [res]);
   }
 
   emitToSseClients(
     event: string,
     data: null | Record<string, unknown> = null,
-    clientWhiteList: null | string[] = null,
-    clientBlackList: null | string[] = null,
+    clientAllowList: null | string[] = null,
+    clientBlockList: null | string[] = null,
   ): void {
     const clients =
-      clientWhiteList || clientBlackList
+      clientAllowList || clientBlockList
         ? allowDenyFilter(
-            [...this.#sseClients.keys()],
-            clientWhiteList,
-            clientBlackList,
-          ).flatMap((k) => [...(this.#sseClients.get(k) || [])])
+            [...this.sseClients.keys()],
+            clientAllowList,
+            clientBlockList,
+          ).flatMap((k) => [...(this.sseClients.get(k) || [])])
         : null;
-    const count = clients ? clients.length : this.#sse.getConnectionCount();
-    this.#sse.send(
+    const count = clients ? clients.length : this.sse.getConnectionCount();
+    this.sse.send(
       {
         data,
         event,
         id: (data?.id as string) || nanoid(),
       },
       // if sending to all clients, use null
-      count === this.#sse.getConnectionCount() ? null : clients,
+      count === this.sse.getConnectionCount() ? null : clients,
     );
     logger.debug(`emitted '${event}' event to ${count} client(s) via SSE`, {
       data,
@@ -261,7 +296,7 @@ export default class Game {
     });
   }
 
-  async computeDerivedState() {
+  computeDerivedState() {
     const { assassinated, remainingBlue, remainingRed } =
       this.state.key?.reduce(
         (res, type, i) => {
@@ -286,7 +321,16 @@ export default class Game {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async save(ctx: ApiContext) {
-    await this.emitToSseClients('stateChanged', await this.serialize());
+    await this.emitToSseClients(
+      'stateChanged',
+      this.serialize(true),
+      Object.keys(this.operatives),
+    );
+    await this.emitToSseClients(
+      'stateChanged',
+      this.serialize(false),
+      Object.keys(this.spymasters),
+    );
   }
 
   async nextTeam() {
@@ -302,15 +346,15 @@ export default class Game {
 
   async startNewRound(ctx: ApiContext) {
     if (this.state.gameOver) {
-      this.#data.players = [];
-      this.#data.usedWords = this.usedWords.joinWith(this.state.words).list;
+      this.data.players = {};
+      this.data.usedWords = this.usedWords.joinWith(this.state.words).list;
     }
     await this.newRound();
     await this.save(ctx);
   }
 
   async joinPlayer(ctx: ApiContext, player: Player) {
-    this.#data.players = [...this.players, player];
+    this.players[player.id] = player;
     await this.save(ctx);
   }
 

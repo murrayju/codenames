@@ -45,7 +45,7 @@ export default function api(serverContext: ServerContext) {
 
   router.post('/game', async (req: Request, res: ApiResponse) => {
     const game = await Game.create(res.locals, req.body);
-    res.json(await game.serialize());
+    res.json(await game.serialize(true));
   });
 
   router.use(
@@ -62,7 +62,11 @@ export default function api(serverContext: ServerContext) {
   );
 
   router.get('/game/:id', async (req: Request, res: GameApiResponse) => {
-    res.json(await res.locals.game.serialize());
+    res.json(
+      await res.locals.game.serialize(
+        !res.locals.game.spymasters[res.locals.clientId],
+      ),
+    );
   });
 
   router.get('/game/:id/events', async (req: Request, res: GameApiResponse) => {
