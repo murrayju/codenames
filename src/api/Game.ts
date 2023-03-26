@@ -60,12 +60,13 @@ export type Player = {
   team: Team;
 };
 
-interface PlayerMap {
+export interface PlayerMap {
   [id: string]: Player | undefined;
 }
 
 export type GameDbData = {
   id: string;
+  lobby?: PlayerMap;
   players?: PlayerMap;
   state?: GameState;
   usedWords?: string[];
@@ -136,6 +137,11 @@ export default class Game {
     return this.data.players;
   }
 
+  get lobby(): PlayerMap {
+    this.data.lobby ??= {};
+    return this.data.lobby;
+  }
+
   get spymasters(): PlayerMap {
     return Object.values(this.players).reduce((acc, p) => {
       if (p?.role === 'spymaster') {
@@ -187,9 +193,10 @@ export default class Game {
 
   serialize(masked: boolean): GameDbData {
     this.computeDerivedState();
-    const { id, players, wordListId } = this;
+    const { id, lobby, players, wordListId } = this;
     return {
       id,
+      lobby,
       players,
       state: masked ? this.maskedState : this.state,
       wordListId,
@@ -324,7 +331,7 @@ export default class Game {
     await this.emitToSseClients(
       'stateChanged',
       this.serialize(true),
-      Object.keys(this.operatives),
+      Object.keys(this.operatives).concat(Object.keys(this.lobby)),
     );
     await this.emitToSseClients(
       'stateChanged',
@@ -346,6 +353,10 @@ export default class Game {
 
   async startNewRound(ctx: ApiContext) {
     if (this.state.gameOver) {
+      this.data.lobby = {
+        ...this.data.lobby,
+        ...this.data.players,
+      };
       this.data.players = {};
       this.data.usedWords = this.usedWords.joinWith(this.state.words).list;
     }
@@ -355,6 +366,13 @@ export default class Game {
 
   async joinPlayer(ctx: ApiContext, player: Player) {
     this.players[player.id] = player;
+    delete this.lobby[player.id];
+    await this.save(ctx);
+  }
+
+  async joinLobby(ctx: ApiContext, player: Player) {
+    this.lobby[player.id] = player;
+    delete this.players[player.id];
     await this.save(ctx);
   }
 

@@ -1032,6 +1032,7 @@ export type IconName =
   | 'retweet'
   | 'rev'
   | 'ribbon'
+  | 'right-to-bracket'
   | 'ring'
   | 'road'
   | 'robot'

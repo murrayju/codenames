@@ -7,8 +7,8 @@ import AppContext from '../contexts/AppContext.js';
 import useEventSource from '../hooks/useEventSource.js';
 
 import { GameHeading } from './GameHeading.js';
-import JoinGame from './JoinGame.js';
 import Loading from './Loading.js';
+import { Lobby } from './Lobby.js';
 import NotFound from './NotFound.js';
 import WordBoard from './WordBoard.js';
 
@@ -69,7 +69,7 @@ const Game: FC<Props> = ({ id }) => {
       />
       <div className="flex flex-col flex-auto items-center justify-center overflow-auto">
         {!player ? (
-          <JoinGame clientId={clientId} id={id} />
+          <Lobby clientId={clientId} game={game} />
         ) : (
           <WordBoard
             gameState={gameState}

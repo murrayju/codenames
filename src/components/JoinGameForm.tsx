@@ -1,36 +1,61 @@
 /* eslint-disable react/no-unknown-property */
 import cn from 'classnames';
+import { debounce } from 'lodash';
 import React, {
   ChangeEvent,
   MouseEvent,
   useCallback,
   useContext,
+  useEffect,
+  useMemo,
   useState,
 } from 'react';
 import { useCookies } from 'react-cookie';
 
-import type { Player, Role, Team } from '../api/Game.js';
+import type { GameDbData, Player, Role, Team } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
 
 import Icon from './Icon.js';
 
 type Props = {
   clientId: string;
-  id: string;
+  game: GameDbData;
 };
 
-const JoinGame = ({ clientId, id }: Props) => {
+export const JoinGameForm = ({ clientId, game }: Props) => {
   const { fetch } = useContext(AppContext);
   const [isSubmitting, setSubmitting] = useState(false);
   const [cookies, setCookie] = useCookies();
-  const [playerInfo, setPlayerInfo] = useState<Player>(() => ({
-    id: clientId,
-    name: cookies.codenames_name || '',
-    role: 'operative',
-    team: Math.random() > 0.5 ? 'red' : 'blue',
-  }));
+  const [playerInfo, setPlayerInfo] = useState<Player>(
+    () =>
+      game.lobby?.[clientId] || {
+        id: clientId,
+        name: cookies.codenames_name || '',
+        role: 'operative',
+        team: Math.random() > 0.5 ? 'red' : 'blue',
+      },
+  );
 
   const valid = !!playerInfo.name;
+
+  const debouncedJoinLobby = useMemo(
+    () =>
+      debounce(
+        (player: Player) => {
+          fetch(`/api/game/${game.id}/lobby`, {
+            body: JSON.stringify(player),
+            method: 'POST',
+          }).catch((e) => console.error(e));
+        },
+        200,
+        { leading: false, trailing: true },
+      ),
+    [game.id],
+  );
+
+  useEffect(() => {
+    debouncedJoinLobby(playerInfo);
+  }, [playerInfo]);
 
   const handleJoinGame = useCallback(
     (evt: MouseEvent<HTMLButtonElement>) => {
@@ -39,14 +64,14 @@ const JoinGame = ({ clientId, id }: Props) => {
       }
       setSubmitting(true);
       evt.preventDefault();
-      fetch(`/api/game/${id}/join`, {
+      fetch(`/api/game/${game.id}/join`, {
         body: JSON.stringify(playerInfo),
         method: 'POST',
       })
         .catch((e) => console.error(e))
         .finally(() => setSubmitting(false));
     },
-    [fetch, playerInfo],
+    [game.id, fetch, playerInfo],
   );
 
   const handleEditName = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +81,7 @@ const JoinGame = ({ clientId, id }: Props) => {
 
   return (
     <div>
-      <h1 className="text-2xl">Join Game: {id}</h1>
+      <h1 className="text-2xl">Join Game: {game.id}</h1>
       <input
         className="my-2 border-none rounded-md outline-none placeholder:italic px-3 drop-shadow-sm"
         onChange={handleEditName}
@@ -133,5 +158,3 @@ const JoinGame = ({ clientId, id }: Props) => {
     </div>
   );
 };
-
-export default JoinGame;

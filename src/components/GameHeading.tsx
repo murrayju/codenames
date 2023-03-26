@@ -48,6 +48,13 @@ export const GameHeading: FC<Props> = ({
     }).catch((e) => console.error(e));
   };
 
+  const exitToLobby = () => {
+    fetch(`/api/game/${id}/lobby`, {
+      body: JSON.stringify(player),
+      method: 'POST',
+    }).catch((e) => console.error(e));
+  };
+
   return gameState ? (
     <div className={cn('flex flex-row p-3', className)}>
       {player ? (
@@ -76,6 +83,18 @@ export const GameHeading: FC<Props> = ({
                   gameState.remainingBlue || 0
                 } tiles remaining out of ${gameState.totalBlue || 0} total`}
               </TooltipContent>
+            </Tooltip>
+            <Tooltip placement="bottom">
+              <TooltipTrigger asChild>
+                <button className="ml-2" onClick={exitToLobby} type="button">
+                  <Icon
+                    className="fa-flip-horizontal"
+                    name="right-to-bracket"
+                    size={24}
+                  />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Exit to lobby</TooltipContent>
             </Tooltip>
             <Tooltip placement="bottom">
               <TooltipTrigger asChild>

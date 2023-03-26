@@ -81,6 +81,14 @@ export default function api(serverContext: ServerContext) {
     res.status(204).send();
   });
 
+  router.post('/game/:id/lobby', async (req: Request, res: GameApiResponse) => {
+    await res.locals.game.joinLobby(res.locals, {
+      ...req.body,
+      id: res.locals.clientId,
+    });
+    res.status(204).send();
+  });
+
   router.post(
     '/game/:id/selectTile/:tileIndex',
     async (req: Request, res: GameApiResponse) => {
