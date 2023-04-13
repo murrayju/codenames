@@ -50,7 +50,7 @@ interface Props {
 
 const Layout: FC<Props> = ({ children }) => (
   <ThemeProvider theme={scTheme}>
-    <div className="absolute inset-0 bg-stone-200 flex flex-col overflow-auto">
+    <div className="absolute inset-0 bg-stone-200 flex flex-col overflow-hidden">
       <div className="flex flex-col flex-auto items-center justify-center overflow-auto">
         {children}
       </div>

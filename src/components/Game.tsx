@@ -73,7 +73,7 @@ const Game: FC<Props> = ({ id }) => {
   };
 
   return clientId ? (
-    <div className="flex flex-col flex-auto w-full overflow-auto">
+    <div className="flex flex-col flex-auto w-full overflow-hidden">
       <GameHeading
         className="flex-none"
         clientId={clientId}
@@ -81,7 +81,7 @@ const Game: FC<Props> = ({ id }) => {
         game={game}
         id={id}
       />
-      <div className="flex flex-col flex-auto items-center justify-center overflow-auto">
+      <div className="flex flex-col flex-auto items-center justify-center overflow-hidden">
         {!player || player.location === 'lobby' ? (
           <Lobby clientId={clientId} game={game} />
         ) : (

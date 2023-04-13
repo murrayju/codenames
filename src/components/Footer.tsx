@@ -8,7 +8,7 @@ const Footer = () => {
   const [version] = useVersion();
 
   return (
-    <div className="flex flex-col items-center justify-center p-2">
+    <div className="flex flex-col flex-none items-center justify-center p-2">
       <h3 className="text-sm font-mono">
         <Icon name="search" />
         C0D3N4M3S

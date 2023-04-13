@@ -8,8 +8,11 @@ import { WordTile } from './Tile.js';
 const Board = styled.div`
   display: flex;
   flex-flow: row wrap;
+  flex: 1 1 auto;
   width: 100%;
   max-width: 1750px;
+  align-items: center;
+  place-content: center;
   @media (max-width: ${({ theme }) => theme.screen.lgMin}),
     (max-height: ${({ theme }) => theme.screen.lgMinHt}) {
     max-width: 1300px;
@@ -18,8 +21,10 @@ const Board = styled.div`
     (max-height: ${({ theme }) => theme.screen.mdMinHt}) {
     max-width: 800px;
   }
-  align-items: center;
-  justify-content: center;
+  @media (max-width: 401px), (max-height: 650px) {
+    place-content: unset;
+    justify-content: center;
+  }
 
   > * {
     flex: 0 0 auto;
@@ -46,20 +51,22 @@ const WordBoard = ({ gameState, onTileSelected, player }: Props) => {
   }
   const { key, revealTileImages, revealed, words } = gameState;
   return (
-    <Board>
-      {words?.map((word, i) => (
-        <WordTile
-          key={word}
-          image={revealTileImages?.[i] || null}
-          onChoose={() => onTileSelected(i)}
-          revealed={revealed?.[i] || false}
-          role={player.role}
-          type={key?.[i] || 'unknown'}
-          word={word}
-        />
-      ))}
-      <PreloadImages urls={revealTileImages} />
-    </Board>
+    <div className="flex flex-auto overflow-auto">
+      <Board>
+        {words?.map((word, i) => (
+          <WordTile
+            key={word}
+            image={revealTileImages?.[i] || null}
+            onChoose={() => onTileSelected(i)}
+            revealed={revealed?.[i] || false}
+            role={player.role}
+            type={key?.[i] || 'unknown'}
+            word={word}
+          />
+        ))}
+        <PreloadImages urls={revealTileImages} />
+      </Board>
+    </div>
   );
 };
 
