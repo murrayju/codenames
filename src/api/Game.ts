@@ -52,9 +52,11 @@ export interface GameState {
 }
 
 export type Role = 'spymaster' | 'operative';
+export type Location = 'lobby' | 'table';
 
 export type Player = {
   id: string;
+  location: Location;
   name: string;
   role: Role;
   team: Team;
@@ -66,7 +68,6 @@ export interface PlayerMap {
 
 export type GameDbData = {
   id: string;
-  lobby?: PlayerMap;
   players?: PlayerMap;
   state?: GameState;
   usedWords?: string[];
@@ -114,12 +115,19 @@ export default class Game {
         this.sseConnections.delete(res);
         if (clientId) {
           this.sseClients.get(clientId)?.delete(res);
-          if (this.sseClients.get(clientId)?.size === 0) {
-            this.sseClients.delete(clientId);
-          }
-          if (this.sseClients.size === 0) {
-            logger.info('All clients disconnected');
-          }
+          setTimeout(() => {
+            if (this.sseClients.get(clientId)?.size === 0) {
+              this.sseClients.delete(clientId);
+              delete this.data.players?.[clientId];
+              this.save();
+            }
+          }, 10000);
+          setTimeout(() => {
+            if (this.sseClients.size === 0) {
+              logger.info('All clients disconnected, deleting game');
+              gamesCache.delete(this.id);
+            }
+          }, 5 * 60 * 1000);
         }
       });
   }
@@ -138,13 +146,17 @@ export default class Game {
   }
 
   get lobby(): PlayerMap {
-    this.data.lobby ??= {};
-    return this.data.lobby;
+    return Object.values(this.players).reduce((acc, p) => {
+      if (p?.location === 'lobby') {
+        acc[p.id] = p;
+      }
+      return acc;
+    }, {} as PlayerMap);
   }
 
   get spymasters(): PlayerMap {
     return Object.values(this.players).reduce((acc, p) => {
-      if (p?.role === 'spymaster') {
+      if (p?.role === 'spymaster' && p?.location === 'table') {
         acc[p.id] = p;
       }
       return acc;
@@ -153,7 +165,7 @@ export default class Game {
 
   get operatives(): PlayerMap {
     return Object.values(this.players).reduce((acc, p) => {
-      if (p?.role === 'operative') {
+      if (p?.role === 'operative' && p?.location === 'table') {
         acc[p.id] = p;
       }
       return acc;
@@ -193,10 +205,9 @@ export default class Game {
 
   serialize(masked: boolean): GameDbData {
     this.computeDerivedState();
-    const { id, lobby, players, wordListId } = this;
+    const { id, players, wordListId } = this;
     return {
       id,
-      lobby,
       players,
       state: masked ? this.maskedState : this.state,
       wordListId,
@@ -232,7 +243,7 @@ export default class Game {
     return key;
   }
 
-  async rotateKey(ctx: ApiContext) {
+  async rotateKey() {
     if (this.state.gameStarted) {
       throw new Error('Cannot rotate key after game has started.');
     }
@@ -245,7 +256,7 @@ export default class Game {
       (_, i) => key[(4 - (i % 5)) * 5 + Math.floor(i / 5)],
     );
     this.state.key = newKey;
-    await this.save(ctx);
+    await this.save();
     return newKey;
   }
 
@@ -270,7 +281,10 @@ export default class Game {
         err ? reject(err) : resolve(),
       );
     });
-    this.sse.send({ event: 'connected', id: nanoid() }, [res]);
+    const { clientId } = res.locals;
+    this.sse.send({ data: { clientId }, event: 'connected', id: nanoid() }, [
+      res,
+    ]);
   }
 
   emitToSseClients(
@@ -327,7 +341,7 @@ export default class Game {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async save(ctx: ApiContext) {
+  async save() {
     await this.emitToSseClients(
       'stateChanged',
       this.serialize(true),
@@ -345,35 +359,39 @@ export default class Game {
     return this.state.turn;
   }
 
-  async pass(ctx: ApiContext) {
+  async pass() {
     await this.nextTeam();
-    await this.save(ctx);
+    await this.save();
     return this.state.turn;
   }
 
-  async startNewRound(ctx: ApiContext) {
+  async startNewRound() {
     if (this.state.gameOver) {
-      this.data.lobby = {
-        ...this.data.lobby,
-        ...this.data.players,
-      };
-      this.data.players = {};
+      for (const player of Object.values(this.players)) {
+        if (player) {
+          player.location = 'lobby';
+        }
+      }
       this.data.usedWords = this.usedWords.joinWith(this.state.words).list;
     }
     await this.newRound();
-    await this.save(ctx);
+    await this.save();
   }
 
   async joinPlayer(ctx: ApiContext, player: Player) {
-    this.players[player.id] = player;
-    delete this.lobby[player.id];
-    await this.save(ctx);
+    this.players[player.id] = {
+      ...player,
+      location: 'table',
+    };
+    await this.save();
   }
 
   async joinLobby(ctx: ApiContext, player: Player) {
-    this.lobby[player.id] = player;
-    delete this.players[player.id];
-    await this.save(ctx);
+    this.players[player.id] = {
+      ...player,
+      location: 'lobby',
+    };
+    await this.save();
   }
 
   async selectTile(ctx: ApiContext, index: number) {
@@ -386,7 +404,7 @@ export default class Game {
     if (tileType !== this.state.turn) {
       await this.nextTeam();
     }
-    await this.save(ctx);
+    await this.save();
   }
 
   static async find(ctx: ApiContext, id: string): Promise<null | Game> {

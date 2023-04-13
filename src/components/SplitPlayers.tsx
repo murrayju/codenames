@@ -8,10 +8,9 @@ import { PlayerList } from './PlayerList.js';
 type Props = {
   className?: string;
   players: PlayerMap;
-  title: string;
 };
 
-export const SplitPlayers = ({ className = '', players, title }: Props) => {
+export const SplitPlayers = ({ className = '', players }: Props) => {
   const { blue, red } = Object.values(players).reduce(
     (acc, player) => {
       if (player) {
@@ -22,12 +21,9 @@ export const SplitPlayers = ({ className = '', players, title }: Props) => {
     { blue: [] as Player[], red: [] as Player[] },
   );
   return (
-    <div className={cn('flex flex-col items-center justify-center', className)}>
-      <h2 className="flex-none text-lg">{title}</h2>
-      <div className="flex-auto flex flex-row min-w-[50%]">
-        <PlayerList className="flex-auto w-[50%]" players={blue} />
-        <PlayerList className="flex-auto w-[50%]" players={red} />
-      </div>
+    <div className={cn('flex-auto flex flex-row', className)}>
+      <PlayerList className="flex-auto w-[50%]" players={blue} />
+      <PlayerList className="flex-auto w-[50%]" players={red} />
     </div>
   );
 };

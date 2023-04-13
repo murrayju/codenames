@@ -1,5 +1,4 @@
 import config from '@murrayju/config';
-import camelCase from 'camelcase';
 import union from 'lodash/union';
 import without from 'lodash/without';
 import { nanoid } from 'nanoid';
@@ -56,7 +55,7 @@ export default class WordList {
   }
 
   getRandomId(wordCount: number = 4): string {
-    return camelCase(this.getRandomList(wordCount));
+    return this.getRandomList(wordCount).join('-');
   }
 
   joinWith(words?: null | (WordList | string[])): WordList {

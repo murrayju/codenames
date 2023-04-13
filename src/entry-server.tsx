@@ -1,5 +1,4 @@
 import React from 'react';
-import { CookiesProvider } from 'react-cookie';
 import ReactDOMServer from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { ServerStyleSheet, StyleSheetManager } from 'styled-components';
@@ -17,11 +16,9 @@ export function render(url: string, context: AppContextData): RenderResult {
   const appHtml = ReactDOMServer.renderToString(
     <StaticRouter location={url}>
       <StyleSheetManager sheet={sheet.instance}>
-        <CookiesProvider cookies={context.cookies}>
-          <AppContext.Provider value={context}>
-            <App />
-          </AppContext.Provider>
-        </CookiesProvider>
+        <AppContext.Provider value={context}>
+          <App />
+        </AppContext.Provider>
       </StyleSheetManager>
     </StaticRouter>,
   );

@@ -85,7 +85,6 @@ export async function createServer(
   app.use('*', async (req, res) => {
     try {
       // @ts-ignore
-      const cookies = req.universalCookies;
       const url = req.originalUrl;
 
       const fetch = createFetch(nodeFetch as Fetch, {
@@ -94,7 +93,6 @@ export async function createServer(
       });
 
       const context: AppContextData = {
-        cookies,
         fetch,
       };
 

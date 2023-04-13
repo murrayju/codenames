@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import type { GameState, Player } from '../api/Game.js';
 
-import WordTile from './WordTile.js';
+import { WordTile } from './Tile.js';
 
 const Board = styled.div`
   display: flex;

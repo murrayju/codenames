@@ -3,21 +3,29 @@ import { useEffect, useState } from 'react';
 
 const useEventSource = (
   url: string,
+  clientId: string | null,
   initializeFn: (es: EventSourcePolyfill) => void,
 ) => {
   const [esConnected, setEsConnected] = useState(false);
 
   useEffect(() => {
+    // Wait to get clientId from fetch
+    // Otherwise, the ES might get a different client id
+    if (!clientId) {
+      return;
+    }
     const es = new EventSourcePolyfill(url);
 
     es.addEventListener('open', () => {
       setEsConnected(true);
-    }); // fired by server when registration completed
+    });
 
+    // fired by server when registration completed
     es.addEventListener('connected', () => {
       setEsConnected(true);
-    }); // fired by server just before closing
+    });
 
+    // fired by server just before closing
     es.addEventListener('connectionClosing', () => {
       setEsConnected(false);
     });
@@ -30,6 +38,7 @@ const useEventSource = (
     initializeFn(es);
 
     // cleanup
+    // eslint-disable-next-line consistent-return
     return () => {
       try {
         es.close();
@@ -37,7 +46,7 @@ const useEventSource = (
         console.error(`Failed to close EventSource ${url}`, err);
       }
     };
-  }, [initializeFn, url]);
+  }, [clientId, initializeFn, url]);
 
   return esConnected;
 };

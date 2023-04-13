@@ -35,6 +35,10 @@ export default function api(serverContext: ServerContext) {
     res.json({ ready: true });
   });
 
+  router.get('/me', (req: Request, res: ApiResponse) => {
+    res.json({ clientId: res.locals.clientId });
+  });
+
   router.get('/version', (req: Request, res: ApiResponse) => {
     res.json(version);
   });
@@ -101,14 +105,14 @@ export default function api(serverContext: ServerContext) {
   );
 
   router.post('/game/:id/pass', async (req: Request, res: GameApiResponse) => {
-    await res.locals.game.pass(res.locals);
+    await res.locals.game.pass();
     res.status(204).send();
   });
 
   router.post(
     '/game/:id/newRound',
     async (req: Request, res: GameApiResponse) => {
-      await res.locals.game.startNewRound(res.locals);
+      await res.locals.game.startNewRound();
       res.status(204).send();
     },
   );
@@ -116,7 +120,7 @@ export default function api(serverContext: ServerContext) {
   router.post(
     '/game/:id/rotateKey',
     async (req: Request, res: GameApiResponse) => {
-      await res.locals.game.rotateKey(res.locals);
+      await res.locals.game.rotateKey();
       res.status(204).send();
     },
   );

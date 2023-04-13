@@ -1,7 +1,8 @@
+import cn from 'classnames';
 import React, { FC, useCallback } from 'react';
 import styled from 'styled-components';
 
-import type { Role, TileType } from '../api/Game.js';
+import type { Player, Role, TileType } from '../api/Game.js';
 
 import Icon, { IconName } from './Icon.js';
 import { scTheme } from './Layout.js';
@@ -197,12 +198,14 @@ const WordBox = styled.div`
   }
 `;
 
-const Word = styled.span`
+const Word = styled.span.attrs(({ className }) => ({
+  className: cn(className, 'uppercase'),
+}))`
   font-weight: bold;
   margin-bottom: -5px;
 `;
 
-interface Props {
+interface WordTileProps {
   image?: null | string;
   onChoose: () => void;
   revealed: boolean;
@@ -211,7 +214,7 @@ interface Props {
   word: string;
 }
 
-const WordTile: FC<Props> = ({
+export const WordTile: FC<WordTileProps> = ({
   image = null,
   onChoose,
   revealed,
@@ -240,11 +243,32 @@ const WordTile: FC<Props> = ({
           </Person>
         </Top>
         <WordBox>
-          <Word>{word.toUpperCase()}</Word>
+          <Word>{word}</Word>
         </WordBox>
       </InnerTile>
     </Tile>
   );
 };
 
-export default WordTile;
+interface AgentTileProps {
+  className?: string;
+  player: Player;
+}
+
+export const AgentTile: FC<AgentTileProps> = ({ className = '', player }) => {
+  return (
+    <Tile className={className}>
+      <InnerTile type={player.team}>
+        <Top>
+          <Icon css="color: #f7e6d6;" name="circle" />
+          <Person type={player.team}>
+            <Icon name={player.role === 'spymaster' ? 'user-secret' : 'user'} />
+          </Person>
+        </Top>
+        <WordBox>
+          <Word className="truncate">{player.name}</Word>
+        </WordBox>
+      </InnerTile>
+    </Tile>
+  );
+};

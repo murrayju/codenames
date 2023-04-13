@@ -1,5 +1,4 @@
 import React from 'react';
-import { Cookies, CookiesProvider } from 'react-cookie';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -15,7 +14,6 @@ declare global {
   }
 }
 
-const cookies = new Cookies();
 const customFetch = createFetch(fetch, {
   baseUrl: window.App.apiUrl,
 });
@@ -23,10 +21,8 @@ const customFetch = createFetch(fetch, {
 ReactDOM.hydrateRoot(
   document.getElementById('app') as HTMLElement,
   <BrowserRouter>
-    <CookiesProvider cookies={cookies}>
-      <AppContext.Provider value={{ cookies, fetch: customFetch }}>
-        <App />
-      </AppContext.Provider>
-    </CookiesProvider>
+    <AppContext.Provider value={{ fetch: customFetch }}>
+      <App />
+    </AppContext.Provider>
   </BrowserRouter>,
 );

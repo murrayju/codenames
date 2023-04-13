@@ -13,22 +13,11 @@ type Props = {
 
 export const Lobby = ({ clientId, game }: Props) => {
   return (
-    <>
+    <div className="flex flex-auto flex-col w-full p-4">
       <JoinGameForm clientId={clientId} game={game} />
-      {game.lobby ? (
-        <SplitPlayers
-          className="w-full mt-4"
-          players={game.lobby}
-          title="Players in lobby:"
-        />
-      ) : null}
       {game.players ? (
-        <SplitPlayers
-          className="w-full mt-4"
-          players={game.players}
-          title="Players in game:"
-        />
+        <SplitPlayers className="w-full mt-4" players={game.players} />
       ) : null}
-    </>
+    </div>
   );
 };

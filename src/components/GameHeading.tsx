@@ -1,6 +1,5 @@
 import cn from 'classnames';
 import React, { FC, useContext, useState } from 'react';
-import { useCookies } from 'react-cookie';
 
 import type { GameDbData } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
@@ -11,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from './Tooltip.js';
 
 type Props = {
   className?: string;
+  clientId: string;
   esConnected: boolean;
   game: GameDbData;
   id: string;
@@ -18,14 +18,13 @@ type Props = {
 
 export const GameHeading: FC<Props> = ({
   className = '',
+  clientId,
   esConnected,
   game,
   id,
 }: Props) => {
   const { fetch } = useContext(AppContext);
   const [newRoundModalShown, setNewRoundModalShown] = useState(false);
-  const [cookies] = useCookies();
-  const { clientId } = cookies;
   const player = game?.players?.[clientId] || null;
   const isSpyMaster = player?.role === 'spymaster';
   const gameState = game.state;
@@ -57,7 +56,7 @@ export const GameHeading: FC<Props> = ({
 
   return gameState ? (
     <div className={cn('flex flex-row p-3', className)}>
-      {player ? (
+      {player?.location === 'table' ? (
         <>
           <div className="flex flex-auto items-center justify-start">
             <Tooltip placement="bottom">
