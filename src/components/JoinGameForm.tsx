@@ -65,11 +65,12 @@ const Stamp2 = styled(Stamp)`
 `;
 
 type Props = {
+  className?: string;
   clientId: string;
   game: GameDbData;
 };
 
-export const JoinGameForm = ({ clientId, game }: Props) => {
+export const JoinGameForm = ({ className = '', clientId, game }: Props) => {
   const { fetch } = useContext(AppContext);
   const [isSubmitting, setSubmitting] = useState(false);
   const [playerInfo, setPlayerInfo] = useState<Player>(
@@ -129,7 +130,7 @@ export const JoinGameForm = ({ clientId, game }: Props) => {
   }, []);
 
   return (
-    <Dossier>
+    <Dossier className={className}>
       <Stamp1>Top Secret</Stamp1>
       <Stamp2>Top Secret</Stamp2>
       <div className="relative z-10">
