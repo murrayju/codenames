@@ -3,7 +3,6 @@ import {
   dockerBuild,
   dockerComposeRunService,
   dockerComposeTeardown,
-  dockerImages,
   dockerTag,
   getDockerId,
   getDockerRepo,
@@ -12,30 +11,16 @@ import {
 } from 'build-strap';
 import fs from 'fs-extra';
 
-export async function getBuilderTag() {
-  return `builder-${await getUniqueBuildTag()}`;
-}
-
 export async function getBuildTag() {
   return `build-${await getUniqueBuildTag()}`;
-}
-
-export function getBuilderRepo() {
-  return `${getDockerRepo()}_builder`;
 }
 
 export async function getBuildImage(tag: null | string) {
   return `${getDockerRepo()}:${tag || (await getBuildTag())}`;
 }
 
-export async function getBuilderImage(tag: null | string) {
-  return `${getBuilderRepo()}:${tag || (await getBuilderTag())}`;
-}
-
 // Build the project using docker
-export default async function docker(
-  builderOnly: boolean = process.argv.includes('--docker-builder-only'),
-) {
+export default async function docker() {
   if (process.argv.includes('--no-docker')) {
     buildLog('Skipping due to --no-docker');
     return;
@@ -43,42 +28,16 @@ export default async function docker(
 
   // ensure that these files exist, so that we can guarantee to stash them
   await Promise.all(
-    [
-      './latest.builder.tag',
-      './latest.builder.id',
-      './latest.build.tag',
-      './latest.build.id',
-    ].map(async (f) => fs.ensureFile(f)),
+    ['./latest.build.tag', './latest.build.id'].map(async (f) =>
+      fs.ensureFile(f),
+    ),
   );
 
   const v = await getVersion();
-  const builderRepo = getBuilderRepo();
-  const builderTag = await getBuilderTag();
   const buildTag = await getBuildTag();
-  await Promise.all([
-    fs.writeFile('./latest.builder.tag', builderTag),
-    fs.writeFile('./latest.build.tag', buildTag),
-  ]);
+  await fs.writeFile('./latest.build.tag', buildTag);
 
-  // First build the builder image
-  await dockerBuild(
-    ['latest-build', builderTag],
-    [`BUILD_NUMBER=${v.build}`],
-    'builder',
-    undefined,
-    builderRepo,
-  );
-  const builderId = await getDockerId(builderTag, builderRepo);
-  await fs.writeFile('./latest.builder.id', builderId);
-  buildLog(`Successfully built builder docker image: ${builderId}`);
-  if (builderOnly) return;
-
-  // Then build the production image
-  await dockerBuild(
-    ['latest-build', buildTag],
-    [`BUILD_NUMBER=${v.build}`],
-    'production',
-  );
+  await dockerBuild(['latest-build', buildTag], [`BUILD_NUMBER=${v.build}`]);
   const buildId = await getDockerId(buildTag);
   await fs.writeFile('./latest.build.id', buildId);
 
@@ -99,21 +58,6 @@ export default async function docker(
   }
 
   buildLog(`Successfully built production docker image: ${buildId}`);
-}
-
-export async function ensureBuilder(
-  build: boolean = process.argv.includes('--build-docker'),
-): Promise<string> {
-  await fs.ensureFile('./latest.builder.tag');
-  const tag = await getBuilderTag();
-  if (
-    build ||
-    !(await dockerImages(getBuilderRepo())).find((m) => m.tag === tag)
-  ) {
-    buildLog('Image does not exist, running docker build...');
-    await docker(true);
-  }
-  return tag;
 }
 
 export async function dockerTeardown() {

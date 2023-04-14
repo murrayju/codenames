@@ -76,7 +76,6 @@ export default async function dockerProd(
       `Starting server, to be available at https://localhost:${localPort}`,
     );
 
-    // Run the tests in the builder container
     await dockerContainerRun({
       image: await getBuildImage(tag),
       runArgs: [

@@ -1,8 +1,11 @@
-FROM node:18 as builder
+FROM node:18
 
-ENV buildDir /opt/build
+ENV NODE_ENV production
+ENV buildDir /opt/app
 RUN mkdir -p ${buildDir}
 WORKDIR ${buildDir}
+RUN mkdir /config
+CMD ["tsx", "server", "--merge-config"]
 
 # Install node dependencies
 COPY ["yarn.lock", "package.json", "tsconfig.json", "${buildDir}/"]
@@ -13,25 +16,3 @@ ARG BUILD_NUMBER
 ENV BUILD_NUMBER ${BUILD_NUMBER:-0}
 COPY . .
 RUN yarn target build
-
-# Defaults when running this container
-EXPOSE 443
-ENTRYPOINT ["yarn", "target"]
-CMD ["dev"]
-
-###
-# Production image. Only include what is needed for production
-###
-FROM node:18 as production
-
-ENV appDir /opt/app
-RUN mkdir -p ${appDir}
-WORKDIR ${appDir}
-
-ENV NODE_ENV production
-
-COPY --from=builder ["/opt/build/build/", "${appDir}/"]
-
-RUN mkdir /config
-
-CMD ["node", "./server.js", "--merge-config"]
