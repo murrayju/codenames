@@ -1240,10 +1240,10 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.2.tgz#2b146a6fd72e80b4f55d255f35ed59a3a9a41bd5"
   integrity sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==
 
-build-strap@^5.0.4:
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/build-strap/-/build-strap-5.0.4.tgz#e27fcf00329417e6323fdec07d41bc4616b18201"
-  integrity sha512-F1ROomsggBCWH45DOTi4KzBoCH3lBs2a1sIt6OyCoGrU570pc23qbw9nOXbVOhektLOibFrM37mGU+LJabulSw==
+build-strap@^5.0.6:
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/build-strap/-/build-strap-5.0.6.tgz#fd73ed28fab0aa8d3b406b8ac1431bc0e193c857"
+  integrity sha512-pIfx5oHmni215g+kN2nfTfS+YGJhGgpAEh0gzVWIkOUgHypp0ireiM1qy+YGSZDPJoT6rwzE3dG+9BBkx8sLdw==
   dependencies:
     bytes "^3.1.1"
     chokidar "^3.5.2"
