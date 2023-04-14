@@ -7,8 +7,7 @@ import { nanoid } from 'nanoid';
 import { ApiResponse, GameApiResponse, ServerContext } from '../types/api.js';
 import { StatusError } from '../types/error.js';
 import logger from '../util/logger.js';
-// eslint-disable-next-line
-import { version } from '../util/version._generated_.js';
+import { version } from '../version._generated_.js';
 
 import Game from './Game.js';
 import WordList from './WordList.js';

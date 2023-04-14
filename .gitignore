@@ -19,6 +19,7 @@ out/
 build/
 *.local
 config/local*
+latest.build*
 
 # Editor directories and files
 .vscode/*
