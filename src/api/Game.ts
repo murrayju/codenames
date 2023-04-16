@@ -122,6 +122,10 @@ export default class Game {
           this.sseClients.get(clientId)?.delete(res);
           setTimeout(() => {
             if (this.sseClients.get(clientId)?.size === 0) {
+              const player = this.data.players?.[clientId];
+              if (player?.name) {
+                this.logMessage(res.locals, `${player.name} has disconnected`);
+              }
               this.sseClients.delete(clientId);
               delete this.data.players?.[clientId];
               this.save();
@@ -443,7 +447,7 @@ export default class Game {
     if (!existed) {
       await this.logMessage(
         ctx,
-        `${this.playerName(ctx)} has joined the lobby!`,
+        `${player.name || 'A new player'} has entered the lobby!`,
       );
     }
     await this.save();

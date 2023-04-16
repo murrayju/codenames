@@ -13,27 +13,29 @@ import NotFound from './NotFound.js';
 import WordBoard from './WordBoard.js';
 
 type Props = {
+  clientId: string;
   id: string;
 };
 
-const Game: FC<Props> = ({ id }) => {
+const Game: FC<Props> = ({ clientId, id }) => {
   const { fetch } = useContext(AppContext);
   const [game, setGame] = useState<null | GameDbData>(null);
   const [notFound, setNotFound] = useState(false);
-  const [clientId, setClientId] = useState<string | null>(null);
-  const player = (clientId && game?.players?.[clientId]) || null;
+  const player = game?.players?.[clientId] || null;
   const [logs, setLogs] = useState<LogMessage[]>([]);
 
   useEffect(() => {
-    fetch('/api/me', {
+    setGame(null);
+    fetch(`/api/game/${id}`, {
       method: 'GET',
     })
       .then((r) => r.json())
-      .then((result) => setClientId(result.clientId))
-      .catch((err) => {
-        console.error('Failed to get clientId', err);
+      .then(setGame)
+      .catch(() => {
+        setGame(null);
+        setNotFound(true);
       });
-  }, [fetch]);
+  }, [fetch, id]);
 
   useEffect(() => {
     fetch(`/api/game/${id}/logs`, {
@@ -42,7 +44,7 @@ const Game: FC<Props> = ({ id }) => {
       .then((r) => r.json())
       .then(setLogs)
       .catch((err) => {
-        console.error('Failed to get clientId', err);
+        console.error('Failed to get logs', err);
       });
   }, [fetch]);
 
@@ -67,19 +69,6 @@ const Game: FC<Props> = ({ id }) => {
     clientId,
     handleEsInit,
   );
-
-  useEffect(() => {
-    setGame(null);
-    fetch(`/api/game/${id}`, {
-      method: 'GET',
-    })
-      .then((r) => r.json())
-      .then(setGame)
-      .catch(() => {
-        setGame(null);
-        setNotFound(true);
-      });
-  }, [fetch, id]);
 
   const gameState = game?.state;
   if (!gameState) {
