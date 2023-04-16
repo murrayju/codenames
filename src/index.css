@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded px-6 py-2.5 text-xs font-medium uppercase leading-tight shadow-md transition duration-150 ease-in-out hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg;
+  }
+  .btn-blue {
+    @apply bg-blue-800 text-white hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900;
+  }
+  .btn-red {
+    @apply bg-red-800 text-white hover:bg-red-700 focus:bg-red-700 active:bg-red-900;
+  }
+  .btn-black {
+    @apply bg-zinc-900 text-white hover:bg-zinc-700 focus:bg-zinc-700 active:bg-zinc-800;
+  }
+
+  .badge {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md px-[0.65em] pt-[0.35em] pb-[0.25em] text-center align-baseline text-[0.75em] font-bold leading-none;
+  }
+
+  .small-caps {
+    font-variant: small-caps;
+  }
+}
+
+html,
+body {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}

@@ -9,5 +9,4 @@ download/
 out/
 Dockerfile
 latest.build*
-db/
 log/
