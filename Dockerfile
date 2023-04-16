@@ -16,4 +16,4 @@ COPY . .
 RUN yarn target build
 
 ENV NODE_ENV production
-CMD ["tsx", "server", "--merge-config"]
+CMD ["yarn", "tsx", "server", "--merge-config"]
