@@ -7,10 +7,12 @@ import colors from 'tailwindcss/colors';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 // external-global styles must be imported in your JS.
+import { Theme } from '../types/theme.js';
+
 import Footer from './Footer.js';
 
 // used by styled-components
-export const scTheme = {
+export const scTheme: Theme = {
   brand: {
     black: colors.slate[900],
     danger: colors.red[600],

@@ -1,6 +1,6 @@
 import cn from 'classnames';
 import React, { FC, useCallback } from 'react';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
 import type { Player, Role, TileType } from '../api/Game.js';
 

@@ -10,7 +10,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
 import type { GameDbData, Player, Role, Team } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';

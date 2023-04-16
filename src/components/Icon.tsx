@@ -1,24 +1,13 @@
 import cn from 'classnames';
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
-const brandColors = [
-  'default',
-  'primary',
-  'success',
-  'info',
-  'warning',
-  'danger',
-] as const;
-
-type Color = (typeof brandColors)[number];
+import { BrandColor, brandColors, Theme } from '../types/theme.js';
 
 export type ColorProps = {
-  color?: Color;
-  theme: {
-    brand: Record<Color, string>;
-  };
-} & Partial<Record<Color, boolean>>;
+  color?: BrandColor;
+  theme: Theme;
+} & Partial<Record<BrandColor, boolean>>;
 
 export const propsColor = (props: ColorProps): string | null =>
   props.color
@@ -1503,7 +1492,9 @@ const Icon = styled.i.attrs<IconAttrs>(
   }),
 )<IconProps>`
   font-size: ${({ size }) => (typeof size === 'number' ? `${size}px` : size)};
-  color: ${(props) => propsColor(props)};
+  color: ${(props) =>
+    // @ts-ignore
+    propsColor(props)};
   padding: ${({ lgPad, mdPad, pad, smPad }) =>
     pad === 'sm' || !!smPad
       ? '.25em'
@@ -1519,6 +1510,7 @@ const Icon = styled.i.attrs<IconAttrs>(
 export default Icon;
 
 export const Spinner = styled(({ name = 'spinner', ...props }) => (
+  // @ts-ignore
   // eslint-disable-next-line react/jsx-props-no-spreading
   <Icon name={name} {...props} />
 ))`
