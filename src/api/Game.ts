@@ -13,11 +13,7 @@ import WordList from './WordList.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const imagesRoot = path.resolve(
-  dirname,
-  process.env.NODE_ENV === 'production' ? './' : '../',
-  '../public/static/images',
-);
+const imagesRoot = path.resolve(dirname, '../../public/static/images');
 const imageUrlRoot = '/static/images';
 const listImagesRandomly = async (subDir: string) =>
   (await fs.readdir(path.resolve(imagesRoot, subDir))).sort(
