@@ -105,14 +105,14 @@ export default function api(serverContext: ServerContext) {
   );
 
   router.post('/game/:id/pass', async (req: Request, res: GameApiResponse) => {
-    await res.locals.game.pass();
+    await res.locals.game.pass(res.locals);
     res.status(204).send();
   });
 
   router.post(
     '/game/:id/newRound',
     async (req: Request, res: GameApiResponse) => {
-      await res.locals.game.startNewRound();
+      await res.locals.game.startNewRound(res.locals);
       res.status(204).send();
     },
   );
@@ -120,10 +120,14 @@ export default function api(serverContext: ServerContext) {
   router.post(
     '/game/:id/rotateKey',
     async (req: Request, res: GameApiResponse) => {
-      await res.locals.game.rotateKey();
+      await res.locals.game.rotateKey(res.locals);
       res.status(204).send();
     },
   );
+
+  router.get('/game/:id/logs', async (req: Request, res: GameApiResponse) => {
+    res.json(res.locals.game.logMessages);
+  });
 
   // Custom error handler
   router.use(

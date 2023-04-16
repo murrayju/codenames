@@ -40,6 +40,7 @@
     "cors": "^2.8.5",
     "event-source-polyfill": "^1.0.31",
     "express-promise-router": "^4.1.1",
+    "framer-motion": "^10.12.2",
     "fs-extra": "^11.1.0",
     "get-port": "^6.1.2",
     "js-yaml": "^4.1.0",

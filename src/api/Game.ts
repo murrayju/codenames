@@ -76,6 +76,12 @@ type NewGameOptions = {
 
 const gamesCache = new Map<string, Game>();
 
+export interface LogMessage {
+  clientId: string | null;
+  id: string;
+  message: string;
+}
+
 export default class Game {
   private data: GameDbData;
 
@@ -89,8 +95,11 @@ export default class Game {
   // map from SSE connection (Response object) to clientId
   private sseConnections: WeakMap<Response, string>;
 
+  logMessages: LogMessage[];
+
   constructor(data: GameDbData) {
     this.data = data;
+    this.logMessages = [];
     this.sseClients = new Map();
     this.sseConnections = new WeakMap();
     this.sse = new SseChannel<Request, ApiResponse>({ jsonEncode: true })
@@ -126,6 +135,21 @@ export default class Game {
           }, 5 * 60 * 1000);
         }
       });
+
+    // For testing many players on screen
+    // this.data.players = Array.from(
+    //   { length: 100 },
+    //   (_, i): Player => ({
+    //     id: nanoid(),
+    //     location: i % 3 === 0 ? 'table' : 'lobby',
+    //     name: `Player ${i}`,
+    //     role: 'operative',
+    //     team: i % 2 === 0 ? 'red' : 'blue',
+    //   }),
+    // ).reduce((acc, p) => {
+    //   acc[p.id] = p;
+    //   return acc;
+    // }, {} as PlayerMap);
   }
 
   get id() {
@@ -139,6 +163,14 @@ export default class Game {
   get players(): PlayerMap {
     this.data.players ??= {};
     return this.data.players;
+  }
+
+  player(ctx: ApiContext): Player | null {
+    return this.players[ctx.clientId] || null;
+  }
+
+  playerName(ctx: ApiContext): string {
+    return this.player(ctx)?.name || ctx.clientId;
   }
 
   get lobby(): PlayerMap {
@@ -239,7 +271,7 @@ export default class Game {
     return key;
   }
 
-  async rotateKey() {
+  async rotateKey(ctx: ApiContext) {
     if (this.state.gameStarted) {
       throw new Error('Cannot rotate key after game has started.');
     }
@@ -252,6 +284,10 @@ export default class Game {
       (_, i) => key[(4 - (i % 5)) * 5 + Math.floor(i / 5)],
     );
     this.state.key = newKey;
+    await this.logMessage(
+      ctx,
+      `${this.playerName(ctx)} rotated the secret key`,
+    );
     await this.save();
     return newKey;
   }
@@ -336,7 +372,6 @@ export default class Game {
     return this.state;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async save() {
     await this.emitToSseClients(
       'stateChanged',
@@ -350,18 +385,33 @@ export default class Game {
     );
   }
 
-  async nextTeam() {
+  async logMessage(ctx: ApiContext, message: string) {
+    const log = {
+      clientId: ctx.clientId,
+      id: nanoid(),
+      message,
+    };
+    this.logMessages.push(log);
+    if (this.logMessages.length > 100) {
+      this.logMessages.shift();
+    }
+    await this.emitToSseClients('logMessage', log);
+  }
+
+  async nextTeam(ctx: ApiContext) {
     this.state.turn = this.state.turn === 'red' ? 'blue' : 'red';
+    await this.logMessage(ctx, `It is now the ${this.state.turn} team's turn.`);
     return this.state.turn;
   }
 
-  async pass() {
-    await this.nextTeam();
+  async pass(ctx: ApiContext) {
+    await this.logMessage(ctx, `${this.playerName(ctx)} has elected to pass`);
+    await this.nextTeam(ctx);
     await this.save();
     return this.state.turn;
   }
 
-  async startNewRound() {
+  async startNewRound(ctx: ApiContext) {
     if (this.state.gameOver) {
       for (const player of Object.values(this.players)) {
         if (player) {
@@ -371,6 +421,7 @@ export default class Game {
       this.data.usedWords = this.usedWords.joinWith(this.state.words).list;
     }
     await this.newRound();
+    await this.logMessage(ctx, `${this.playerName(ctx)} started a new round.`);
     await this.save();
   }
 
@@ -379,14 +430,22 @@ export default class Game {
       ...player,
       location: 'table',
     };
+    await this.logMessage(ctx, `${this.playerName(ctx)} has joined the table!`);
     await this.save();
   }
 
   async joinLobby(ctx: ApiContext, player: Player) {
+    const existed = this.players[player.id]?.location === 'lobby';
     this.players[player.id] = {
       ...player,
       location: 'lobby',
     };
+    if (!existed) {
+      await this.logMessage(
+        ctx,
+        `${this.playerName(ctx)} has joined the lobby!`,
+      );
+    }
     await this.save();
   }
 
@@ -397,8 +456,14 @@ export default class Game {
     this.state.gameStarted = true;
     this.state.revealed[index] = true;
     const tileType = this.state.key?.[index];
+    await this.logMessage(
+      ctx,
+      `${this.playerName(ctx)} has selected "${
+        this.state.words?.[index] || ''
+      }", revealing a ${tileType} tile.`,
+    );
     if (tileType !== this.state.turn) {
-      await this.nextTeam();
+      await this.nextTeam(ctx);
     }
     await this.save();
   }

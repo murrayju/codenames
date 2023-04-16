@@ -1,10 +1,11 @@
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
 
-import type { GameDbData } from '../api/Game.js';
+import type { GameDbData, LogMessage } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
 import useEventSource from '../hooks/useEventSource.js';
 
+import { AnimatedList } from './AnimatedList.js';
 import { GameHeading } from './GameHeading.js';
 import Loading from './Loading.js';
 import { Lobby } from './Lobby.js';
@@ -21,6 +22,7 @@ const Game: FC<Props> = ({ id }) => {
   const [notFound, setNotFound] = useState(false);
   const [clientId, setClientId] = useState<string | null>(null);
   const player = (clientId && game?.players?.[clientId]) || null;
+  const [logs, setLogs] = useState<LogMessage[]>([]);
 
   useEffect(() => {
     fetch('/api/me', {
@@ -33,12 +35,30 @@ const Game: FC<Props> = ({ id }) => {
       });
   }, [fetch]);
 
+  useEffect(() => {
+    fetch(`/api/game/${id}/logs`, {
+      method: 'GET',
+    })
+      .then((r) => r.json())
+      .then(setLogs)
+      .catch((err) => {
+        console.error('Failed to get clientId', err);
+      });
+  }, [fetch]);
+
   const handleEsInit = useCallback((es: EventSourcePolyfill) => {
     // @ts-ignore
     es.addEventListener('stateChanged', ({ data: rawData }) => {
       const data: GameDbData = JSON.parse(rawData);
       console.debug('stateChanged', data);
       setGame(data);
+    });
+
+    // @ts-ignore
+    es.addEventListener('logMessage', ({ data: rawData }) => {
+      const data: LogMessage = JSON.parse(rawData);
+      console.debug('logMessage', data);
+      setLogs((l) => l.concat(data));
     });
   }, []);
 
@@ -91,6 +111,12 @@ const Game: FC<Props> = ({ id }) => {
             player={player}
           />
         )}
+      </div>
+      <div className="flex flex-col flex-none grow items-center justify-center overflow-hidden">
+        <AnimatedList
+          className="flex flex-col items-center w-full max-h-16"
+          messages={logs}
+        />
       </div>
     </div>
   ) : (
