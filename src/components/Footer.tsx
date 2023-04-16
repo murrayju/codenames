@@ -8,13 +8,25 @@ const Footer = () => {
   const [version] = useVersion();
 
   return (
-    <div className="flex flex-col flex-none items-center justify-center p-2">
-      <h3 className="text-sm font-mono">
+    <div className="flex flex-row flex-none items-center justify-center p-1">
+      <p
+        className="flex-auto text-right items-end text-xs"
+        style={{ flexBasis: '50%' }}
+      >
+        &copy; 2023 - Justin Murray
+      </p>
+      <h3 className="flex-none flex items-center justify-center text-sm font-mono mx-6">
         <Icon name="search" />
-        C0D3N4M3S
+        <span>C0D3N4M3S</span>
       </h3>
-      <p className="text-xs">Copyright 2023 - Justin Murray</p>
-      {version ? <p className="text-xs text-neutral-500">v{version}</p> : null}
+      {version ? (
+        <p
+          className="flex-auto text-xs text-neutral-500"
+          style={{ flexBasis: '50%' }}
+        >
+          v{version}
+        </p>
+      ) : null}
     </div>
   );
 };
