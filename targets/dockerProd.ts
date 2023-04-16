@@ -2,8 +2,6 @@ import {
   buildLog,
   dockerContainerRun,
   dockerImages,
-  dockerNetworkDelete,
-  dockerTryStopContainer,
   getDockerRepo,
   onKillSignal,
   run,
@@ -11,16 +9,11 @@ import {
 import fs from 'fs-extra';
 import getPort from 'get-port';
 
-import docker, {
-  getBuildImage,
-  getBuildTag,
-  runDbContainer,
-} from './docker.js';
+import docker, { getBuildImage, getBuildTag } from './docker.js';
 
 // Run the production docker image
 export default async function dockerProd(
   build: boolean = process.argv.includes('--build-docker'),
-  integration: boolean = !process.argv.includes('--no-integration'),
 ) {
   await fs.ensureFile('./latest.build.tag');
   const tag = await getBuildTag();
@@ -32,26 +25,11 @@ export default async function dockerProd(
     await run(docker);
   }
 
-  const network = 'codenames-production';
-  let db: null | string = null;
-  let dbHost: null | undefined | string = null;
-  let dbPort: null | undefined | number = null;
-
   let cleaning: null | Promise<void> = null;
   const cleanupAndExit = async () => {
     if (!cleaning) {
       cleaning = (async () => {
         buildLog('Process exiting... cleaning up...');
-        await dockerTryStopContainer(db, 'db');
-        try {
-          await dockerNetworkDelete(network);
-        } catch (err) {
-          buildLog(
-            `Failed to delete network (probably does not exist): ${
-              (err as Error).message
-            }`,
-          );
-        }
         process.exit();
       })();
     }
@@ -61,14 +39,6 @@ export default async function dockerProd(
   onKillSignal(cleanupAndExit);
 
   try {
-    if (integration) {
-      ({
-        dockerPort: dbPort,
-        dockerUrl: dbHost,
-        id: db,
-      } = await runDbContainer());
-    }
-
     const dockerPort = 80;
     const localPort = await getPort({ host: '0.0.0.0', port: 8008 });
 
@@ -85,19 +55,6 @@ export default async function dockerProd(
         `${localPort}:${dockerPort}`,
         '-e',
         `PORT=${dockerPort}`,
-        ...(integration
-          ? [
-              ...(dbHost && dbPort
-                ? [
-                    '-e',
-                    'DB_ENABLED=true',
-                    '-e',
-                    `DB_HOST=mongodb://${dbHost}:${dbPort}`,
-                  ]
-                : []),
-              `--network=${network}`,
-            ]
-          : []),
       ],
     });
   } finally {

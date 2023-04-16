@@ -13,7 +13,6 @@ import { AppContextData } from './src/contexts/AppContext.js';
 import { type RenderResult } from './src/entry-server.js';
 import { ServerContext } from './src/types/api.js';
 import createFetch, { Fetch } from './src/util/createFetch.js';
-import * as mongo from './src/util/mongo.js';
 import { handleNodeProcessEvents } from './src/util/nodeProcessEvents.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,9 +39,7 @@ export async function createServer(
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
-  // initialize the db
-  const { client: mongoClient, db } = await mongo.init();
-  const serverContext: ServerContext = { db };
+  const serverContext: ServerContext = {};
 
   app.use('/api', api(serverContext));
 
@@ -124,7 +121,7 @@ export async function createServer(
     }
   });
 
-  return { app, mongoClient, vite };
+  return { app, vite };
 }
 
 if (!isTest) {

@@ -1,7 +1,6 @@
 import {
   buildLog,
   dockerBuild,
-  dockerComposeRunService,
   dockerComposeTeardown,
   dockerTag,
   getDockerId,
@@ -62,9 +61,4 @@ export default async function docker() {
 
 export async function dockerTeardown() {
   await dockerComposeTeardown();
-}
-
-export async function runDbContainer() {
-  buildLog('Starting database server...');
-  return dockerComposeRunService('db');
 }

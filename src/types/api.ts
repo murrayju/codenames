@@ -1,11 +1,8 @@
 import { Response } from 'express';
-import type { Db } from 'mongodb';
 
 import Game from '../api/Game.js';
 
-export interface ServerContext {
-  db: Db;
-}
+export interface ServerContext {}
 
 export interface ApiContext {
   clientId: string;

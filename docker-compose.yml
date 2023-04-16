@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8000:8002
+      - 8000:80
     volumes:
       - ./src:/opt/app/src:rw
       - ./config:/opt/app/config:rw
@@ -13,18 +13,4 @@ services:
     command: ['tsx', 'server']
     environment:
       NODE_ENV: development
-    links:
-      - db
-  db:
-    image: mongo
-    ports:
-      - 27018:27017
-    volumes:
-      - db:/data/db:rw
-    # environment:
-    #   MONGO_INITDB_ROOT_USERNAME: test
-    #   MONGO_INITDB_ROOT_PASSWORD: testPass
-
-volumes:
-  db:
-    name: db
+      PORT: 80
