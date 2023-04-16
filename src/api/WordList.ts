@@ -1,6 +1,5 @@
 import config from '@murrayju/config';
-import union from 'lodash/union';
-import without from 'lodash/without';
+import { union, without } from 'lodash-es';
 import { nanoid } from 'nanoid';
 
 interface WordListDbData {
