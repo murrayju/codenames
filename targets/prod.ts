@@ -10,7 +10,7 @@ export default async function prod(
   if (doBuild) {
     await run(build);
   }
-  const localPort = await getPort({ host: '0.0.0.0', port: 8000 });
+  const localPort = await getPort({ host: '0.0.0.0', port: 8123 });
   await spawn('tsx', ['server.ts'], {
     env: {
       ...process.env,
