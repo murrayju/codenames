@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import { LayoutGroup } from 'framer-motion';
 import React from 'react';
 
 import type { Player, PlayerMap } from '../api/Game.js';
@@ -22,8 +23,12 @@ export const SplitPlayers = ({ className = '', players }: Props) => {
   );
   return (
     <div className={cn('flex-auto flex flex-row', className)}>
-      <PlayerList className="flex-auto w-[50%]" players={blue} />
-      <PlayerList className="flex-auto w-[50%]" players={red} />
+      <LayoutGroup id="blue">
+        <PlayerList className="flex-auto w-[50%]" players={blue} />
+      </LayoutGroup>
+      <LayoutGroup id="red">
+        <PlayerList className="flex-auto w-[50%]" players={red} />
+      </LayoutGroup>
     </div>
   );
 };
