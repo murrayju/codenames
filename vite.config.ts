@@ -1,9 +1,9 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
+import react from '@vitejs/plugin-react-swc';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [react()],
   build: {
     minify: false,
   },
+  plugins: [react()],
 });
