@@ -4,3 +4,5 @@ server:
 scraper:
   cron:
     interval: CRON_INTERVAL
+openai:
+  apiKey: OPENAI_KEY
