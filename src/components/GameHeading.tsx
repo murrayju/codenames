@@ -1,11 +1,11 @@
 import cn from 'classnames';
-import React, { FC, useContext, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 
 import type { GameDbData } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
 
 import { ConfirmModal } from './ConfirmModal.js';
-import Icon from './Icon.js';
+import Icon, { Spinner } from './Icon.js';
 import { Tooltip, TooltipContent, TooltipTrigger } from './Tooltip.js';
 
 type Props = {
@@ -25,6 +25,8 @@ export const GameHeading: FC<Props> = ({
 }: Props) => {
   const { fetch } = useContext(AppContext);
   const [newRoundModalShown, setNewRoundModalShown] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState('');
+  const [aiSuggestionLoading, setAiSuggestionLoading] = useState(false);
   const player = game?.players?.[clientId] || null;
   const isSpyMaster = player?.role === 'spymaster';
   const gameState = game.state;
@@ -53,6 +55,26 @@ export const GameHeading: FC<Props> = ({
       method: 'POST',
     }).catch((e) => console.error(e));
   };
+
+  const getSuggestion = () => {
+    if (aiSuggestionLoading || aiSuggestion) {
+      return;
+    }
+    setAiSuggestionLoading(true);
+    fetch(`/api/game/${id}/suggestion`, {
+      method: 'GET',
+    })
+      .then((r) => r.json())
+      .then(({ message }) => {
+        setAiSuggestion(message);
+      })
+      .catch((e) => console.error(e))
+      .finally(() => setAiSuggestionLoading(false));
+  };
+
+  useEffect(() => {
+    setAiSuggestion('');
+  }, [gameState?.turn, gameState?.gameOver]);
 
   return gameState ? (
     <div className={cn('flex flex-row p-3', className)}>
@@ -113,6 +135,27 @@ export const GameHeading: FC<Props> = ({
                 Shuffle the board and start a new round
               </TooltipContent>
             </Tooltip>
+            {isSpyMaster ? (
+              <Tooltip open={aiSuggestion ? true : undefined}>
+                <TooltipTrigger asChild>
+                  <button
+                    className="ml-2"
+                    disabled={aiSuggestionLoading || !!aiSuggestion}
+                    onClick={getSuggestion}
+                    type="button"
+                  >
+                    {aiSuggestionLoading ? (
+                      <Spinner name="robot" size={24} />
+                    ) : (
+                      <Icon name="robot" size={24} />
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {aiSuggestion || 'Get an AI suggestion for your clue'}
+                </TooltipContent>
+              </Tooltip>
+            ) : null}
             {isSpyMaster && !gameState.gameStarted ? (
               <Tooltip>
                 <TooltipTrigger asChild>
