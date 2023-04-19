@@ -1,4 +1,5 @@
 import cn from 'classnames';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { FC, useCallback } from 'react';
 import { styled } from 'styled-components';
 
@@ -231,22 +232,34 @@ export const WordTile: FC<WordTileProps> = ({
     }
   }, [isSpymaster, onChoose]);
 
-  return revealed && image ? (
-    <Tile image={image} revealed type={type} />
-  ) : (
-    <Tile onClick={handleChoose}>
-      <InnerTile type={shownType}>
-        <Top>
-          <Icon css="color: #f7e6d6;" name="circle" />
-          <Person type={shownType}>
-            <Icon name={portraitIcons[shownType]} />
-          </Person>
-        </Top>
-        <WordBox>
-          <Word>{word}</Word>
-        </WordBox>
-      </InnerTile>
-    </Tile>
+  return (
+    <div className="relative">
+      <AnimatePresence initial={false}>
+        <Tile onClick={handleChoose}>
+          <InnerTile type={shownType}>
+            <Top>
+              <Icon css="color: #f7e6d6;" name="circle" />
+              <Person type={shownType}>
+                <Icon name={portraitIcons[shownType]} />
+              </Person>
+            </Top>
+            <WordBox>
+              <Word>{word}</Word>
+            </WordBox>
+          </InnerTile>
+        </Tile>
+        {revealed && image ? (
+          <motion.div
+            key={word}
+            animate={{ opacity: 1, x: 0, y: 0 }}
+            className="absolute top-0 left-0"
+            initial={{ opacity: 0, x: -500, y: -300 }}
+          >
+            <Tile image={image} revealed type={type} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
   );
 };
 
