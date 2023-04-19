@@ -9,6 +9,7 @@ import type { ApiContext, ApiResponse } from '../types/api.js';
 import { allowDenyFilter } from '../util/array.js';
 import logger from '../util/logger.js';
 
+import { ClueSuggestion, getClueSuggestion } from './openai.js';
 import WordList from './WordList.js';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -470,6 +471,50 @@ export default class Game {
       await this.nextTeam(ctx);
     }
     await this.save();
+  }
+
+  async getSuggestion(ctx: ApiContext): Promise<ClueSuggestion> {
+    const player = this.player(ctx);
+    if (!player) {
+      throw new Error('Player not found');
+    }
+    if (player.role !== 'spymaster') {
+      throw new Error('Only spymasters can get hints');
+    }
+    const key = this.state.key || [];
+    const state = key.reduce(
+      (acc, type, i) => {
+        const revealed = this.state.revealed?.[i] || false;
+        if (revealed) {
+          return acc;
+        }
+        const word = this.state.words?.[i] || '';
+        if (!word) {
+          throw new Error('Unexpected empty word');
+        }
+        if (type === player.team) {
+          acc.words.push(word);
+        } else if (type === 'assassin') {
+          acc.assassinWord = word;
+        } else if (type === 'red' || type === 'blue') {
+          acc.opponentWords.push(word);
+        } else {
+          acc.bystanderWords.push(word);
+        }
+        return acc;
+      },
+      {
+        assassinWord: '',
+        bystanderWords: [] as string[],
+        opponentWords: [] as string[],
+        words: [] as string[],
+      },
+    );
+    await this.logMessage(
+      ctx,
+      `${this.playerName(ctx)} has asked for an AI suggestion.`,
+    );
+    return getClueSuggestion(state);
   }
 
   static async find(ctx: ApiContext, id: string): Promise<null | Game> {

@@ -129,6 +129,13 @@ export default function api(serverContext: ServerContext) {
     res.json(res.locals.game.logMessages);
   });
 
+  router.get(
+    '/game/:id/suggestion',
+    async (req: Request, res: GameApiResponse) => {
+      res.json(await res.locals.game.getSuggestion(res.locals));
+    },
+  );
+
   // Custom error handler
   router.use(
     (
