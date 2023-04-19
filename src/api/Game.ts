@@ -473,6 +473,10 @@ export default class Game {
     await this.save();
   }
 
+  getImages() {
+    return [...(this.state.revealTileImages || [])].sort();
+  }
+
   async getSuggestion(ctx: ApiContext): Promise<ClueSuggestion> {
     const player = this.player(ctx);
     if (!player) {

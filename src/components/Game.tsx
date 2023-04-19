@@ -23,6 +23,7 @@ const Game: FC<Props> = ({ clientId, id }) => {
   const [notFound, setNotFound] = useState(false);
   const player = game?.players?.[clientId] || null;
   const [logs, setLogs] = useState<LogMessage[]>([]);
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     setGame(null);
@@ -45,6 +46,17 @@ const Game: FC<Props> = ({ clientId, id }) => {
       .then(setLogs)
       .catch((err) => {
         console.error('Failed to get logs', err);
+      });
+  }, [fetch]);
+
+  useEffect(() => {
+    fetch(`/api/game/${id}/images`, {
+      method: 'GET',
+    })
+      .then((r) => r.json())
+      .then(setImages)
+      .catch((err) => {
+        console.error('Failed to get images', err);
       });
   }, [fetch]);
 
@@ -96,6 +108,7 @@ const Game: FC<Props> = ({ clientId, id }) => {
         ) : (
           <WordBoard
             gameState={gameState}
+            images={images}
             onTileSelected={selectTile}
             player={player}
           />

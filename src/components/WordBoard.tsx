@@ -41,11 +41,12 @@ const PreloadImages = styled.div<PreloadImagesProps>`
 
 type Props = {
   gameState: GameState;
+  images: string[];
   onTileSelected: (index: number) => void;
   player: Player;
 };
 
-const WordBoard = ({ gameState, onTileSelected, player }: Props) => {
+const WordBoard = ({ gameState, images, onTileSelected, player }: Props) => {
   if (!gameState) {
     return null;
   }
@@ -64,7 +65,7 @@ const WordBoard = ({ gameState, onTileSelected, player }: Props) => {
             word={word}
           />
         ))}
-        <PreloadImages urls={revealTileImages} />
+        <PreloadImages urls={images} />
       </Board>
     </div>
   );

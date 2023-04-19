@@ -136,6 +136,10 @@ export default function api(serverContext: ServerContext) {
     },
   );
 
+  router.get('/game/:id/images', async (req: Request, res: GameApiResponse) => {
+    res.json(res.locals.game.getImages());
+  });
+
   // Custom error handler
   router.use(
     (
