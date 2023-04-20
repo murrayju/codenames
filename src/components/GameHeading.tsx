@@ -31,12 +31,6 @@ export const GameHeading: FC<Props> = ({
   const isSpyMaster = player?.role === 'spymaster';
   const gameState = game.state;
 
-  const pass = () => {
-    fetch(`/api/game/${id}/pass`, {
-      method: 'POST',
-    }).catch((e) => console.error(e));
-  };
-
   const newRound = () => {
     fetch(`/api/game/${id}/newRound`, {
       method: 'POST',
@@ -77,152 +71,162 @@ export const GameHeading: FC<Props> = ({
   }, [gameState?.turn, gameState?.gameOver]);
 
   return gameState ? (
-    <div className={cn('flex flex-row p-3', className)}>
-      {player?.location === 'table' ? (
-        <>
-          <div className="flex flex-auto items-center justify-start">
-            <Tooltip placement="bottom">
-              <TooltipTrigger asChild>
-                <div className="badge bg-spy-red text-white text-lg">
-                  {gameState.remainingRed}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                {`Red team has ${
-                  gameState.remainingRed || 0
-                } tiles remaining out of ${gameState.totalRed || 0} total`}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip placement="bottom">
-              <TooltipTrigger asChild>
-                <div className="badge bg-spy-blue text-white text-lg ml-2">
-                  {gameState.remainingBlue}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                {`Blue team has ${
-                  gameState.remainingBlue || 0
-                } tiles remaining out of ${gameState.totalBlue || 0} total`}
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip placement="bottom">
-              <TooltipTrigger asChild>
-                <button className="ml-2" onClick={exitToLobby} type="button">
-                  <Icon
-                    className="fa-flip-horizontal"
-                    name="right-to-bracket"
-                    size={24}
-                  />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Exit to lobby</TooltipContent>
-            </Tooltip>
-            <Tooltip placement="bottom">
-              <TooltipTrigger asChild>
-                <button
-                  className="ml-2"
-                  onClick={() =>
-                    gameState.gameStarted && !gameState.gameOver
-                      ? setNewRoundModalShown(true)
-                      : newRound()
-                  }
-                  type="button"
-                >
-                  <Icon name="random" size={24} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                Shuffle the board and start a new round
-              </TooltipContent>
-            </Tooltip>
-            {isSpyMaster ? (
-              <Tooltip open={aiSuggestion ? true : undefined}>
+    <>
+      <div
+        className={cn(
+          'flex flex-row items-center justify-center p-3',
+          className,
+        )}
+      >
+        {player?.location === 'table' ? (
+          <>
+            <div
+              className="flex flex-auto items-center justify-start"
+              style={{ flexBasis: '50%' }}
+            >
+              <Tooltip placement="bottom">
+                <TooltipTrigger asChild>
+                  <div className="badge bg-spy-red text-white text-lg">
+                    {gameState.remainingRed}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {`Red team has ${
+                    gameState.remainingRed || 0
+                  } tiles remaining out of ${gameState.totalRed || 0} total`}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip placement="bottom">
+                <TooltipTrigger asChild>
+                  <div className="badge bg-spy-blue text-white text-lg ml-2">
+                    {gameState.remainingBlue}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {`Blue team has ${
+                    gameState.remainingBlue || 0
+                  } tiles remaining out of ${gameState.totalBlue || 0} total`}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip placement="bottom">
+                <TooltipTrigger asChild>
+                  <button className="ml-2" onClick={exitToLobby} type="button">
+                    <Icon
+                      className="fa-flip-horizontal"
+                      name="right-to-bracket"
+                      size={24}
+                    />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Exit to lobby</TooltipContent>
+              </Tooltip>
+              <Tooltip placement="bottom">
                 <TooltipTrigger asChild>
                   <button
                     className="ml-2"
-                    disabled={aiSuggestionLoading || !!aiSuggestion}
-                    onClick={getSuggestion}
+                    onClick={() =>
+                      gameState.gameStarted && !gameState.gameOver
+                        ? setNewRoundModalShown(true)
+                        : newRound()
+                    }
                     type="button"
                   >
-                    {aiSuggestionLoading ? (
-                      <Spinner name="robot" size={24} />
-                    ) : (
-                      <Icon name="robot" size={24} />
-                    )}
+                    <Icon name="random" size={24} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {aiSuggestion || 'Get an AI suggestion for your clue'}
+                  Shuffle the board and start a new round
                 </TooltipContent>
               </Tooltip>
-            ) : null}
-            {isSpyMaster && !gameState.gameStarted ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className="ml-2" onClick={rotateKey} type="button">
-                    <Icon name="sync" size={24} />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Rotate the spymaster key 90 degrees.
-                </TooltipContent>
-              </Tooltip>
-            ) : null}
-          </div>
-          <div className="flex items-center justify-center flex-auto text-xl">
-            {gameState.gameOver ? (
-              <h1 className="text-spy-black capitalize small-caps">
-                Game Over
-              </h1>
-            ) : (
-              <button
+              {isSpyMaster ? (
+                <Tooltip open={aiSuggestion ? true : undefined}>
+                  <TooltipTrigger asChild>
+                    <button
+                      className="ml-2"
+                      disabled={aiSuggestionLoading || !!aiSuggestion}
+                      onClick={getSuggestion}
+                      type="button"
+                    >
+                      {aiSuggestionLoading ? (
+                        <Spinner name="robot" size={24} />
+                      ) : (
+                        <Icon name="robot" size={24} />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {aiSuggestion || 'Get an AI suggestion for your clue'}
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+              {isSpyMaster && !gameState.gameStarted ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button className="ml-2" onClick={rotateKey} type="button">
+                      <Icon name="sync" size={24} />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Rotate the spymaster key 90 degrees.
+                  </TooltipContent>
+                </Tooltip>
+              ) : null}
+            </div>
+            <div className="flex items-center justify-center flex-none px-2">
+              <h1
                 className={cn(
-                  'flex items-center justify-center',
-                  gameState.turn === 'red' ? 'text-spy-red' : 'text-spy-blue',
+                  'text-xl uppercase',
+                  gameState.gameOver
+                    ? 'text-spy-black'
+                    : gameState.turn === 'red'
+                    ? 'text-spy-red'
+                    : 'text-spy-blue',
                 )}
-                onClick={pass}
+              >
+                {gameState.gameOver
+                  ? 'Game Over'
+                  : `${gameState.turn} team's turn`}
+              </h1>
+            </div>
+          </>
+        ) : null}
+        <div
+          className="flex flex-auto flex-row flex-wrap items-center justify-end"
+          style={{ flexBasis: '50%' }}
+        >
+          <Tooltip placement="bottom">
+            <TooltipTrigger asChild>
+              <button
+                onClick={() =>
+                  window.open(`https://meet.jit.si/codenames_${id}`, '_blank')
+                }
                 type="button"
               >
-                {gameState.turn} team&apos;s turn
-                <Icon className="ml-4" name="step-forward" />
+                <Icon name="video" size={24} />
               </button>
-            )}
-          </div>
-        </>
-      ) : null}
-      <div className="flex flex-auto flex-row flex-wrap items-center justify-end">
-        <Tooltip placement="bottom">
-          <TooltipTrigger asChild>
-            <button
-              onClick={() =>
-                window.open(`https://meet.jit.si/codenames_${id}`, '_blank')
-              }
-              type="button"
-            >
-              <Icon name="video" size={24} />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>
-            Join video conference call using jitsi
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip placement="bottom">
-          <TooltipTrigger asChild>
-            <Icon
-              className="p-2 ml-2"
-              color={esConnected ? 'success' : 'danger'}
-              name={esConnected ? 'wifi' : 'user-slash'}
-            />
-          </TooltipTrigger>
-          <TooltipContent>
-            Event stream{' '}
-            {esConnected ? (
-              'connected'
-            ) : (
-              <strong className="text-warning">disconnected</strong>
-            )}
-          </TooltipContent>
-        </Tooltip>
+            </TooltipTrigger>
+            <TooltipContent>
+              Join video conference call using jitsi
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip placement="bottom">
+            <TooltipTrigger asChild>
+              <Icon
+                className="p-2 ml-2"
+                color={esConnected ? 'success' : 'danger'}
+                name={esConnected ? 'wifi' : 'user-slash'}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              Event stream{' '}
+              {esConnected ? (
+                'connected'
+              ) : (
+                <strong className="text-warning">disconnected</strong>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
       {newRoundModalShown && (
         <ConfirmModal
@@ -235,6 +239,6 @@ export const GameHeading: FC<Props> = ({
           title="Are you sure?"
         />
       )}
-    </div>
+    </>
   ) : null;
 };

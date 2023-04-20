@@ -1,4 +1,6 @@
+import cn from 'classnames';
 import { EventSourcePolyfill } from 'event-source-polyfill';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
 
 import type { GameDbData, LogMessage } from '../api/Game.js';
@@ -7,6 +9,7 @@ import useEventSource from '../hooks/useEventSource.js';
 
 import { AnimatedList } from './AnimatedList.js';
 import { GameHeading } from './GameHeading.js';
+import Icon from './Icon.js';
 import Loading from './Loading.js';
 import { Lobby } from './Lobby.js';
 import NotFound from './NotFound.js';
@@ -93,6 +96,12 @@ const Game: FC<Props> = ({ clientId, id }) => {
     }).catch((e) => console.error(e));
   };
 
+  const pass = () => {
+    fetch(`/api/game/${id}/pass`, {
+      method: 'POST',
+    }).catch((e) => console.error(e));
+  };
+
   return clientId ? (
     <div className="flex flex-col flex-auto w-full overflow-hidden">
       <GameHeading
@@ -114,7 +123,37 @@ const Game: FC<Props> = ({ clientId, id }) => {
           />
         )}
       </div>
-      <div className="flex flex-col flex-none grow items-center justify-center overflow-hidden">
+      <div className="flex flex-col flex-none grow items-center justify-start h-[35px] relative">
+        <AnimatePresence>
+          {player?.role === 'operative' &&
+          player.location === 'table' &&
+          !gameState.gameOver &&
+          gameState.turn === player.team ? (
+            <motion.div
+              key={player.team}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              exit={{ opacity: 0, y: 35 }}
+              initial={{ opacity: 0, x: 0, y: -35 }}
+              layout
+              layoutId={player.team}
+              transition={{ duration: 0.5 }}
+            >
+              <button
+                className={cn(
+                  'btn',
+                  { blue: 'btn-blue', red: 'btn-red' }[player.team],
+                )}
+                onClick={pass}
+                type="button"
+              >
+                Pass
+                <Icon className="ml-4" name="step-forward" />
+              </button>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
+      <div className="flex flex-col flex-none items-center justify-end mb-4 overflow-hidden">
         <AnimatedList
           className="flex flex-col items-center w-full max-h-16"
           messages={logs}
