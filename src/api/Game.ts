@@ -435,7 +435,10 @@ export default class Game {
       ...player,
       location: 'table',
     };
-    await this.logMessage(ctx, `${this.playerName(ctx)} has joined the table!`);
+    await this.logMessage(
+      ctx,
+      `${player.name} has joined as ${player.role} for team ${player.team}!`,
+    );
     await this.save();
   }
 
