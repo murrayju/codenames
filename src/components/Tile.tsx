@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import React, { FC, useCallback } from 'react';
 import { styled } from 'styled-components';
 
-import type { Player, Role, TileType } from '../api/Game.js';
+import type { Player, TileType } from '../api/Game.js';
 
 import Icon, { IconName } from './Icon.js';
 import { scTheme } from './Layout.js';
@@ -33,6 +33,7 @@ const borderColors = {
 };
 
 interface TileProps {
+  canChoose?: boolean;
   image?: string;
   revealed?: boolean;
   type?: TileType;
@@ -83,7 +84,8 @@ const Tile = styled.div<TileProps>`
   @media (max-height: ${({ theme }) => theme.screen.smMinHt}) {
     height: calc(130px * 3 / 7);
   }
-  cursor: ${({ onClick }) => (onClick ? 'pointer' : 'arrow')};
+  cursor: ${({ canChoose, onClick }) =>
+    canChoose && onClick ? 'pointer' : 'arrow'};
 `;
 
 interface InnerTileProps {
@@ -207,35 +209,36 @@ const Word = styled.span.attrs(({ className }) => ({
 `;
 
 interface WordTileProps {
+  canChoose: boolean;
   image?: null | string;
   onChoose: () => void;
   revealed: boolean;
-  role: Role;
+  spymasterView?: boolean;
   type?: TileType;
   word: string;
 }
 
 export const WordTile: FC<WordTileProps> = ({
+  canChoose,
   image = null,
   onChoose,
   revealed,
-  role,
+  spymasterView = false,
   type = 'unknown',
   word,
 }) => {
-  const isSpymaster = role === 'spymaster';
-  const shownType = isSpymaster ? type : 'unknown';
+  const shownType = spymasterView ? type : 'unknown';
 
   const handleChoose = useCallback(() => {
-    if (!isSpymaster && onChoose) {
+    if (canChoose && onChoose) {
       onChoose();
     }
-  }, [isSpymaster, onChoose]);
+  }, [canChoose, onChoose]);
 
   return (
     <div className="relative">
       <AnimatePresence initial={false}>
-        <Tile onClick={handleChoose}>
+        <Tile canChoose={canChoose} onClick={handleChoose}>
           <InnerTile type={shownType}>
             <Top>
               <Icon css="color: #f7e6d6;" name="circle" />

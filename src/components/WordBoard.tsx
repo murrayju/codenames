@@ -50,17 +50,18 @@ const WordBoard = ({ gameState, images, onTileSelected, player }: Props) => {
   if (!gameState) {
     return null;
   }
-  const { key, revealTileImages, revealed, words } = gameState;
+  const { key, revealTileImages, revealed, turn, words } = gameState;
   return (
     <div className="flex flex-auto overflow-auto">
       <Board>
         {words?.map((word, i) => (
           <WordTile
             key={word}
+            canChoose={player.role === 'operative' && turn === player.team}
             image={revealTileImages?.[i] || null}
             onChoose={() => onTileSelected(i)}
             revealed={revealed?.[i] || false}
-            role={player.role}
+            spymasterView={player.role === 'spymaster'}
             type={key?.[i] || 'unknown'}
             word={word}
           />
