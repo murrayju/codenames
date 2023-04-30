@@ -1,0 +1,9 @@
+{
+  "delay": 200,
+  "execMap": {
+    "ts": "tsx"
+  },
+  "ext": "ts",
+  "ignore": ["*.spec.ts"],
+  "watch": ["server.ts", "src/api", "src/util", "public"]
+}

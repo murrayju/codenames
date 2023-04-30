@@ -5,7 +5,8 @@ yarn-debug.log*
 yarn-error.log*
 
 # bs
-/node*
+node
+nodeBootstrap.sh
 yarn
 yarn.bat
 yarn.ps1
