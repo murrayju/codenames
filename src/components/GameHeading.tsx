@@ -6,6 +6,8 @@ import AppContext from '../contexts/AppContext.js';
 
 import { ConfirmModal } from './ConfirmModal.js';
 import Icon, { Spinner } from './Icon.js';
+import { Modal } from './Modal.js';
+import { SplitPlayers } from './SplitPlayers.js';
 import { Tooltip, TooltipContent, TooltipTrigger } from './Tooltip.js';
 
 type Props = {
@@ -27,9 +29,11 @@ export const GameHeading: FC<Props> = ({
   const [newRoundModalShown, setNewRoundModalShown] = useState(false);
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [aiSuggestionLoading, setAiSuggestionLoading] = useState(false);
+  const [playersModalShown, setPlayersModalShown] = useState(false);
   const player = game?.players?.[clientId] || null;
   const isSpyMaster = player?.role === 'spymaster';
   const gameState = game.state;
+  const playerCount = Object.keys(game.players ?? {}).length;
 
   const newRound = () => {
     fetch(`/api/game/${id}/newRound`, {
@@ -74,7 +78,7 @@ export const GameHeading: FC<Props> = ({
     <>
       <div
         className={cn(
-          'flex flex-row items-center justify-center p-3',
+          'flex flex-row items-center justify-center p-3 h-[60px]',
           className,
         )}
       >
@@ -129,7 +133,11 @@ export const GameHeading: FC<Props> = ({
               </Tooltip>
               <Tooltip placement="bottom">
                 <TooltipTrigger asChild>
-                  <button className="ml-2" onClick={exitToLobby} type="button">
+                  <button
+                    className="ml-2 flex items-center justify-center"
+                    onClick={exitToLobby}
+                    type="button"
+                  >
                     <Icon
                       className="fa-flip-horizontal"
                       name="right-to-bracket"
@@ -142,7 +150,7 @@ export const GameHeading: FC<Props> = ({
               <Tooltip placement="bottom">
                 <TooltipTrigger asChild>
                   <button
-                    className="ml-2"
+                    className="ml-2 flex items-center justify-center"
                     onClick={() =>
                       gameState.gameStarted && !gameState.gameOver
                         ? setNewRoundModalShown(true)
@@ -161,7 +169,7 @@ export const GameHeading: FC<Props> = ({
                 <Tooltip open={aiSuggestion ? true : undefined}>
                   <TooltipTrigger asChild>
                     <button
-                      className="ml-2"
+                      className="ml-2 flex items-center justify-center"
                       disabled={aiSuggestionLoading || !!aiSuggestion}
                       onClick={getSuggestion}
                       type="button"
@@ -181,7 +189,11 @@ export const GameHeading: FC<Props> = ({
               {isSpyMaster && !gameState.gameStarted ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <button className="ml-2" onClick={rotateKey} type="button">
+                    <button
+                      className="ml-2 flex items-center justify-center"
+                      onClick={rotateKey}
+                      type="button"
+                    >
                       <Icon name="sync" size={24} />
                     </button>
                   </TooltipTrigger>
@@ -213,9 +225,32 @@ export const GameHeading: FC<Props> = ({
           className="flex flex-auto flex-row flex-wrap items-center justify-end"
           style={{ flexBasis: '50%' }}
         >
+          {player?.location === 'table' ? (
+            <Tooltip placement="bottom">
+              <TooltipTrigger asChild>
+                <button
+                  className="flex items-center justify-center"
+                  onClick={
+                    playerCount > 1
+                      ? () => setPlayersModalShown(true)
+                      : undefined
+                  }
+                  type="button"
+                >
+                  <Icon name="users" size={24} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {playerCount === 1
+                  ? 'You are the only player in the game'
+                  : `There are ${playerCount} players in the game`}
+              </TooltipContent>
+            </Tooltip>
+          ) : null}
           <Tooltip placement="bottom">
             <TooltipTrigger asChild>
               <button
+                className="ml-2 flex items-center justify-center"
                 onClick={() =>
                   window.open(`https://meet.jit.si/codenames_${id}`, '_blank')
                 }
@@ -256,6 +291,12 @@ export const GameHeading: FC<Props> = ({
             setNewRoundModalShown(false);
           }}
           title="Are you sure?"
+        />
+      )}
+      {playersModalShown && !!game.players && (
+        <Modal
+          body={<SplitPlayers className="m-6" players={game.players} />}
+          onClose={() => setPlayersModalShown(false)}
         />
       )}
     </>

@@ -1411,6 +1411,7 @@ export type IconName =
   | 'xbox'
   | 'xing'
   | 'xing-square'
+  | 'xmark'
   | 'y-combinator'
   | 'yahoo'
   | 'yammer'
