@@ -45,6 +45,7 @@ export interface GameState {
   totalBlue?: number;
   totalRed?: number;
   turn?: Team;
+  winner?: null | Team;
   words?: string[];
 }
 
@@ -237,7 +238,6 @@ export default class Game {
   }
 
   serialize(masked: boolean): GameDbData {
-    this.computeDerivedState();
     const { id, players, wordListId } = this;
     return {
       id,
@@ -374,10 +374,27 @@ export default class Game {
     this.state.remainingRed = remainingRed || 0;
     this.state.remainingBlue = remainingBlue || 0;
     this.state.gameOver = !remainingBlue || !remainingRed || assassinated;
+    this.state.winner = this.state.gameOver
+      ? assassinated
+        ? this.state.turn === 'blue'
+          ? 'red'
+          : 'blue'
+        : !remainingBlue
+        ? 'blue'
+        : !remainingRed
+        ? 'red'
+        : null
+      : null;
     return this.state;
   }
 
   async save() {
+    this.computeDerivedState();
+    if (this.state.gameOver) {
+      // reveal the key to all when game ends
+      await this.emitToSseClients('stateChanged', this.serialize(false));
+      return;
+    }
     await this.emitToSseClients(
       'stateChanged',
       this.serialize(true),
@@ -461,6 +478,9 @@ export default class Game {
     if (!this.state.revealed || index >= this.state.revealed.length) {
       throw new Error('Invalid tile index');
     }
+    if (this.state.gameOver) {
+      throw new Error('Game is over');
+    }
     this.state.gameStarted = true;
     this.state.revealed[index] = true;
     const tileType = this.state.key?.[index];
@@ -470,7 +490,13 @@ export default class Game {
         this.state.words?.[index] || ''
       }", revealing a ${tileType} tile.`,
     );
-    if (tileType !== this.state.turn) {
+    this.computeDerivedState();
+    if (this.state.gameOver && this.state.winner) {
+      await this.logMessage(
+        ctx,
+        `The ${this.state.winner} team has won the game!`,
+      );
+    } else if (tileType !== this.state.turn) {
       await this.nextTeam(ctx);
     }
     await this.save();
