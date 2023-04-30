@@ -86,6 +86,25 @@ export const GameHeading: FC<Props> = ({
             >
               <Tooltip placement="bottom">
                 <TooltipTrigger asChild>
+                  <Icon
+                    className={cn(
+                      'mr-2',
+                      player.team === 'red' ? 'text-spy-red' : 'text-spy-blue',
+                    )}
+                    name={player.role === 'spymaster' ? 'user-secret' : 'user'}
+                    size={24}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  {`${player.name} is ${
+                    player.role === 'spymaster'
+                      ? 'the spymaster'
+                      : 'an operative'
+                  } on the ${player.team} team`}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip placement="bottom">
+                <TooltipTrigger asChild>
                   <div className="badge bg-spy-red text-white text-lg">
                     {gameState.remainingRed}
                   </div>
