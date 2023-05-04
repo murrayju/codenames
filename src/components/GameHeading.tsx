@@ -30,10 +30,32 @@ export const GameHeading: FC<Props> = ({
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [aiSuggestionLoading, setAiSuggestionLoading] = useState(false);
   const [playersModalShown, setPlayersModalShown] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const player = game?.players?.[clientId] || null;
   const isSpyMaster = player?.role === 'spymaster';
   const gameState = game.state;
   const playerCount = Object.keys(game.players ?? {}).length;
+
+  useEffect(() => {
+    const timerEnd = gameState?.timerEnd;
+    if (!timerEnd) {
+      return undefined;
+    }
+
+    const timer = setInterval(() => {
+      const diff = Math.floor((timerEnd - Date.now()) / 1000);
+      if (diff <= 0) {
+        setCountdown(0);
+        clearInterval(timer);
+      } else {
+        setCountdown(diff);
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [gameState?.timerEnd]);
 
   const newRound = () => {
     fetch(`/api/game/${id}/newRound`, {
@@ -52,6 +74,14 @@ export const GameHeading: FC<Props> = ({
       body: JSON.stringify(player),
       method: 'POST',
     }).catch((e) => console.error(e));
+  };
+
+  const startTimer = () => {
+    fetch(`/api/game/${id}/startTimer`, {
+      method: 'POST',
+    })
+      .then(() => setCountdown(60))
+      .catch((e) => console.error(e));
   };
 
   const getSuggestion = () => {
@@ -226,26 +256,60 @@ export const GameHeading: FC<Props> = ({
           style={{ flexBasis: '50%' }}
         >
           {player?.location === 'table' ? (
-            <Tooltip placement="bottom">
-              <TooltipTrigger asChild>
-                <button
-                  className="flex items-center justify-center"
-                  onClick={
-                    playerCount > 1
-                      ? () => setPlayersModalShown(true)
-                      : undefined
-                  }
-                  type="button"
-                >
-                  <Icon name="users" size={24} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {playerCount === 1
-                  ? 'You are the only player in the game'
-                  : `There are ${playerCount} players in the game`}
-              </TooltipContent>
-            </Tooltip>
+            <>
+              <Tooltip
+                open={gameState.timerEnd ? true : undefined}
+                placement="bottom"
+              >
+                <TooltipTrigger asChild>
+                  <button
+                    className={cn('flex items-center justify-center', {
+                      'pointer-events-none': gameState.timerEnd,
+                      'text-spy-blue': gameState.timerEnd && countdown,
+                      'text-spy-red': gameState.timerEnd && !countdown,
+                    })}
+                    onClick={startTimer}
+                    type="button"
+                  >
+                    <Icon
+                      name={
+                        gameState.timerEnd
+                          ? countdown
+                            ? 'hourglass-half'
+                            : 'hourglass-end'
+                          : 'hourglass'
+                      }
+                      size={24}
+                    />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {gameState.timerEnd
+                    ? countdown || 'Time is up!'
+                    : 'Start a 60 second timer'}
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip placement="bottom">
+                <TooltipTrigger asChild>
+                  <button
+                    className="ml-2 flex items-center justify-center"
+                    onClick={
+                      playerCount > 1
+                        ? () => setPlayersModalShown(true)
+                        : undefined
+                    }
+                    type="button"
+                  >
+                    <Icon name="users" size={24} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {playerCount === 1
+                    ? 'You are the only player in the game'
+                    : `There are ${playerCount} players in the game`}
+                </TooltipContent>
+              </Tooltip>
+            </>
           ) : null}
           <Tooltip placement="bottom">
             <TooltipTrigger asChild>

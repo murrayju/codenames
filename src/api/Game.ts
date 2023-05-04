@@ -42,6 +42,8 @@ export interface GameState {
   remainingRed?: number;
   revealTileImages?: null | string[];
   revealed?: boolean[];
+  timerEnd?: number;
+  timerStart?: number;
   totalBlue?: number;
   totalRed?: number;
   turn?: Team;
@@ -423,6 +425,7 @@ export default class Game {
 
   private async nextTeam(ctx: ApiContext) {
     this.state.turn = this.state.turn === 'red' ? 'blue' : 'red';
+    this.clearTimerState();
     await this.logMessage(ctx, `It is now the ${this.state.turn} team's turn.`);
     return this.state.turn;
   }
@@ -532,6 +535,7 @@ export default class Game {
         this.state.words?.[index] || ''
       }", revealing a ${tileType} tile.`,
     );
+    this.clearTimerState();
     this.computeDerivedState();
     if (this.state.gameOver && this.state.winner) {
       await this.logMessage(
@@ -542,6 +546,22 @@ export default class Game {
       await this.nextTeam(ctx);
     }
     await this.save();
+  }
+
+  async startTimer(ctx: ApiContext) {
+    this.validatePlayer(ctx);
+    if (this.state.timerEnd) {
+      throw new Error('Timer already started');
+    }
+    const now = Date.now();
+    this.state.timerStart = now;
+    this.state.timerEnd = now + 60000;
+    await this.save();
+  }
+
+  private clearTimerState() {
+    this.state.timerStart = 0;
+    this.state.timerEnd = 0;
   }
 
   getImages() {

@@ -125,6 +125,14 @@ export default function api(serverContext: ServerContext) {
     },
   );
 
+  router.post(
+    '/game/:id/startTimer',
+    async (req: Request, res: GameApiResponse) => {
+      await res.locals.game.startTimer(res.locals);
+      res.status(204).send();
+    },
+  );
+
   router.get('/game/:id/logs', async (req: Request, res: GameApiResponse) => {
     res.json(res.locals.game.logMessages);
   });
