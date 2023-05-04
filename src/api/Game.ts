@@ -247,7 +247,7 @@ export default class Game {
     };
   }
 
-  async newWords(): Promise<string[]> {
+  private async newWords(): Promise<string[]> {
     const baseList = await this.getWordList();
     const unusedList = baseList.without(this.usedWords);
     if (unusedList.size < 25) {
@@ -259,7 +259,7 @@ export default class Game {
     return this.state.words;
   }
 
-  async newKey(): Promise<TileType[]> {
+  private async newKey(): Promise<TileType[]> {
     const first = Math.random() > 0.5 ? 'red' : 'blue';
     this.state.totalRed = first === 'red' ? 9 : 8;
     this.state.totalBlue = first === 'blue' ? 9 : 8;
@@ -280,6 +280,7 @@ export default class Game {
     if (this.state.gameStarted) {
       throw new Error('Cannot rotate key after game has started.');
     }
+    this.validateSpymaster(ctx);
     const { key } = this.state;
     if (!key) {
       throw new Error('No key exists to rotate');
@@ -324,7 +325,7 @@ export default class Game {
     ]);
   }
 
-  emitToSseClients(
+  private emitToSseClients(
     event: string,
     data: null | Record<string, unknown> = null,
     clientAllowList: null | string[] = null,
@@ -354,7 +355,7 @@ export default class Game {
     });
   }
 
-  computeDerivedState() {
+  private computeDerivedState() {
     const { assassinated, remainingBlue, remainingRed } =
       this.state.key?.reduce(
         (res, type, i) => {
@@ -388,7 +389,7 @@ export default class Game {
     return this.state;
   }
 
-  async save() {
+  private async save() {
     this.computeDerivedState();
     if (this.state.gameOver) {
       // reveal the key to all when game ends
@@ -407,7 +408,7 @@ export default class Game {
     );
   }
 
-  async logMessage(ctx: ApiContext, message: string) {
+  private async logMessage(ctx: ApiContext, message: string) {
     const log = {
       clientId: ctx.clientId,
       id: nanoid(),
@@ -420,13 +421,53 @@ export default class Game {
     await this.emitToSseClients('logMessage', log);
   }
 
-  async nextTeam(ctx: ApiContext) {
+  private async nextTeam(ctx: ApiContext) {
     this.state.turn = this.state.turn === 'red' ? 'blue' : 'red';
     await this.logMessage(ctx, `It is now the ${this.state.turn} team's turn.`);
     return this.state.turn;
   }
 
+  validatePlayer(ctx: ApiContext, requirements: Partial<Player> = {}): Player {
+    if (this.state.gameOver) {
+      throw new Error('Game is over');
+    }
+    const player = this.player(ctx);
+    if (!player) {
+      throw new Error('Player not found');
+    }
+    Object.entries(requirements).forEach(([key, value]) => {
+      // @ts-ignore
+      if (player[key] !== value) {
+        throw new Error(`Player ${key} is not ${value}`);
+      }
+    });
+    return player;
+  }
+
+  validateSpymaster(
+    ctx: ApiContext,
+    requirements: Partial<Player> = {},
+  ): Player {
+    return this.validatePlayer(ctx, {
+      location: 'table',
+      role: 'spymaster',
+      ...requirements,
+    });
+  }
+
+  validatePlayerTurn(
+    ctx: ApiContext,
+    requirements: Partial<Player> = {},
+  ): Player {
+    return this.validatePlayer(ctx, {
+      location: 'table',
+      team: this.state.turn,
+      ...requirements,
+    });
+  }
+
   async pass(ctx: ApiContext) {
+    this.validatePlayerTurn(ctx);
     await this.logMessage(ctx, `${this.playerName(ctx)} has elected to pass`);
     await this.nextTeam(ctx);
     await this.save();
@@ -447,7 +488,7 @@ export default class Game {
     await this.save();
   }
 
-  async joinPlayer(ctx: ApiContext, player: Player) {
+  async joinTable(ctx: ApiContext, player: Player) {
     this.players[player.id] = {
       ...player,
       location: 'table',
@@ -478,9 +519,10 @@ export default class Game {
     if (!this.state.revealed || index >= this.state.revealed.length) {
       throw new Error('Invalid tile index');
     }
-    if (this.state.gameOver) {
-      throw new Error('Game is over');
+    if (this.state.revealed[index]) {
+      throw new Error('Tile already revealed');
     }
+    this.validatePlayerTurn(ctx);
     this.state.gameStarted = true;
     this.state.revealed[index] = true;
     const tileType = this.state.key?.[index];
@@ -507,13 +549,7 @@ export default class Game {
   }
 
   async getSuggestion(ctx: ApiContext): Promise<ClueSuggestion> {
-    const player = this.player(ctx);
-    if (!player) {
-      throw new Error('Player not found');
-    }
-    if (player.role !== 'spymaster') {
-      throw new Error('Only spymasters can get hints');
-    }
+    const player = this.validateSpymaster(ctx);
     const key = this.state.key || [];
     const state = key.reduce(
       (acc, type, i) => {
@@ -551,11 +587,6 @@ export default class Game {
   }
 
   static async find(ctx: ApiContext, id: string): Promise<null | Game> {
-    // const game: ?GameDbData = await ctx.serverContext.db.collection('games').findOne({ id });
-    // if (!game) {
-    //   return null;
-    // }
-    // return new Game(game);
     return gamesCache.get(id) || null;
   }
 

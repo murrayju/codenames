@@ -78,7 +78,7 @@ export default function api(serverContext: ServerContext) {
   });
 
   router.post('/game/:id/join', async (req: Request, res: GameApiResponse) => {
-    await res.locals.game.joinPlayer(res.locals, {
+    await res.locals.game.joinTable(res.locals, {
       ...req.body,
       id: res.locals.clientId,
     });
