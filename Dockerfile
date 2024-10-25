@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:20
 
 ENV buildDir /opt/app
 RUN mkdir -p ${buildDir}
