@@ -4,8 +4,8 @@
   "version": "2.0.0",
   "type": "module",
   "buildStrap": {
-    "nodeVersion": "18.15.0",
-    "yarnVersion": "1.22.19",
+    "nodeVersion": "20.18.0",
+    "yarnVersion": "1.22.22",
     "repoType": "git",
     "copyright": "murrayju",
     "releaseBranch": "main",
