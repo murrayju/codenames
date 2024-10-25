@@ -81,10 +81,9 @@ export async function createServer(
 
   app.use('*', async (req, res) => {
     try {
-      // @ts-ignore
       const url = req.originalUrl;
 
-      const fetch = createFetch(nodeFetch as Fetch, {
+      const fetch = createFetch(nodeFetch as unknown as Fetch, {
         baseUrl: serverUrl,
         cookie: req.headers.cookie,
       });
@@ -102,8 +101,7 @@ export async function createServer(
         render = (await vite.ssrLoadModule('/src/entry-server.tsx')).render;
       } else {
         template = indexProd;
-        // @ts-ignore
-        // eslint-disable-next-line import/extensions
+        // @ts-expect-error ignore
         render = (await import('./dist/server/entry-server.js')).render;
       }
 
@@ -115,7 +113,7 @@ export async function createServer(
 
       res.status(200).set({ 'Content-Type': 'text/html' }).end(html);
     } catch (e) {
-      !isProd && vite?.ssrFixStacktrace(e as Error);
+      if (!isProd) vite?.ssrFixStacktrace(e as Error);
       console.error((e as Error).stack);
       res.status(500).end((e as Error).stack);
     }

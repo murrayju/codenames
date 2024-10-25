@@ -89,8 +89,7 @@ export default class WordList {
 
   static async getAll(): Promise<WordList[]> {
     return Object.entries(config.get('words') as WordListDbDataMap).map(
-      // @ts-ignore
-      ([id, value]) => new this({ id, ...value }),
+      ([id, value]) => new this({ ...value, id }),
     );
   }
 

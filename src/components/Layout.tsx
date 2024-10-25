@@ -1,5 +1,5 @@
 import { darken } from 'polished';
-import React, { FC } from 'react';
+import { FC } from 'react';
 import type { ReactNode } from 'react';
 import { ThemeProvider } from 'styled-components';
 import colors from 'tailwindcss/colors';

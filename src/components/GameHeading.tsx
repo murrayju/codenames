@@ -1,5 +1,5 @@
 import cn from 'classnames';
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 
 import type { GameDbData } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
@@ -240,8 +240,8 @@ export const GameHeading: FC<Props> = ({
                   gameState.gameOver
                     ? 'text-spy-black'
                     : gameState.turn === 'red'
-                    ? 'text-spy-red'
-                    : 'text-spy-blue',
+                      ? 'text-spy-red'
+                      : 'text-spy-blue',
                 )}
               >
                 {gameState.gameOver

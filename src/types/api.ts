@@ -2,6 +2,7 @@ import { Response } from 'express';
 
 import Game from '../api/Game.js';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ServerContext {}
 
 export interface ApiContext {
@@ -14,5 +15,5 @@ export interface GameApiContext extends ApiContext {
   game: Game;
 }
 
-export type ApiResponse = Response<any, ApiContext>;
-export type GameApiResponse = Response<any, GameApiContext>;
+export type ApiResponse = Response<unknown, ApiContext>;
+export type GameApiResponse = Response<unknown, GameApiContext>;

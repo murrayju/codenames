@@ -13,7 +13,10 @@ interface FetchOptions extends RequestInit {
   qs?: Record<string, string>;
 }
 
-export type CustomFetch = (url: string, options?: FetchOptions) => Promise<any>;
+export type CustomFetch = (
+  url: string,
+  options?: FetchOptions,
+) => Promise<Response>;
 
 const addQs = (url: string, qs?: Record<string, string>) =>
   qs
@@ -73,7 +76,7 @@ function createFetch(fetch: Fetch, { baseUrl, cookie }: Options): CustomFetch {
           return await Promise.reject(
             new Error(`Fetch failed: ${body.message}`),
           );
-        } catch (err) {
+        } catch {
           return Promise.reject(new Error('Fetch failed: unknown reason'));
         }
       }

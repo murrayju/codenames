@@ -1,7 +1,6 @@
-/* eslint-disable react/no-unknown-property */
 import cn from 'classnames';
 import { debounce } from 'lodash-es';
-import React, {
+import {
   ChangeEvent,
   MouseEvent,
   useCallback,

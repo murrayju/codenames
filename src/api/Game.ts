@@ -439,7 +439,7 @@ export default class Game {
       throw new Error('Player not found');
     }
     Object.entries(requirements).forEach(([key, value]) => {
-      // @ts-ignore
+      // @ts-expect-error ignore
       if (player[key] !== value) {
         throw new Error(`Player ${key} is not ${value}`);
       }
@@ -622,7 +622,6 @@ export default class Game {
     const wl = await WordList.get('standard');
     let id = null;
     let attempts = 10;
-    /* eslint-disable no-await-in-loop */
     while (wl && attempts > 0) {
       id = wl.getRandomId(3);
       if (!(await this.find(ctx, id))) {
@@ -630,7 +629,6 @@ export default class Game {
       }
       attempts -= 1;
     }
-    /* eslint-enable no-await-in-loop */
     return nanoid();
   }
 

@@ -1,6 +1,6 @@
 import cn from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import { styled } from 'styled-components';
 
 import { LogMessage } from '../api/Game';

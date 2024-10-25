@@ -7,6 +7,6 @@ export interface AppContextData {
 }
 
 const AppContext = React.createContext<AppContextData>({
-  fetch: async () => {},
+  fetch: async () => ({}) as Response,
 });
 export default AppContext;

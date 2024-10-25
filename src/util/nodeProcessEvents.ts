@@ -18,8 +18,8 @@ const multipleResolvesHandler = (type: string /* , promise, reason */) => {
   // setImmediate(() => process.exit(1));
 };
 const unhandledRejectionHandler = (
-  reason: {} | null | undefined,
-  promise: Promise<any>,
+  reason: object | null | undefined,
+  promise: Promise<unknown>,
 ) => {
   unhandledRejections.set(promise, reason);
   console.error('Node<unhandledRejection>', {
@@ -28,7 +28,7 @@ const unhandledRejectionHandler = (
     reason,
   });
 };
-const rejectionHandledHandler = (promise: Promise<any>) => {
+const rejectionHandledHandler = (promise: Promise<unknown>) => {
   unhandledRejections.delete(promise);
   console.info('Node<rejectionHandled>', {
     count: unhandledRejections.size,

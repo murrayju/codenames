@@ -1,7 +1,7 @@
 import cn from 'classnames';
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
+import { FC, useCallback, useContext, useEffect, useState } from 'react';
 
 import type { GameDbData, LogMessage } from '../api/Game.js';
 import AppContext from '../contexts/AppContext.js';
@@ -64,14 +64,14 @@ const Game: FC<Props> = ({ clientId, id }) => {
   }, [fetch]);
 
   const handleEsInit = useCallback((es: EventSourcePolyfill) => {
-    // @ts-ignore
+    // @ts-expect-error ignore
     es.addEventListener('stateChanged', ({ data: rawData }) => {
       const data: GameDbData = JSON.parse(rawData);
       console.debug('stateChanged', data);
       setGame(data);
     });
 
-    // @ts-ignore
+    // @ts-expect-error ignore
     es.addEventListener('logMessage', ({ data: rawData }) => {
       const data: LogMessage = JSON.parse(rawData);
       console.debug('logMessage', data);

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import useVersion from '../hooks/useVersion.js';
 
 import Icon from './Icon.js';

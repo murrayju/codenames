@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
-import React, { FC, Fragment, ReactNode, useCallback, useState } from 'react';
+import { FC, Fragment, ReactNode, useCallback, useState } from 'react';
 
 import Icon from './Icon';
 

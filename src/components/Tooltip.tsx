@@ -14,7 +14,7 @@ import {
 } from '@floating-ui/react';
 import type { Placement } from '@floating-ui/react';
 import cn from 'classnames';
-import React, {
+import {
   cloneElement,
   createContext,
   forwardRef,
@@ -112,14 +112,14 @@ export const Tooltip = ({
 };
 
 interface TooltipTriggerProps extends HTMLProps<HTMLElement> {
-  // eslint-disable-next-line react/require-default-props
   asChild?: boolean;
 }
 
 export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
   ({ asChild = false, children, ...props }, propRef) => {
     const context = useTooltipContext();
-    const childrenRef = (children as any).ref;
+    // @ts-expect-error ignore
+    const childrenRef = children?.ref;
     const ref = useMergeRefs([context.refs.setReference, propRef, childrenRef]);
 
     // `asChild` allows the user to pass any element as the anchor
@@ -148,6 +148,7 @@ export const TooltipTrigger = forwardRef<HTMLElement, TooltipTriggerProps>(
     );
   },
 );
+TooltipTrigger.displayName = 'TooltipTrigger';
 
 export const TooltipContent = forwardRef<
   HTMLDivElement,
@@ -178,3 +179,4 @@ export const TooltipContent = forwardRef<
     </FloatingPortal>
   );
 });
+TooltipContent.displayName = 'TooltipContent';

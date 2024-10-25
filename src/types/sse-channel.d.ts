@@ -2,6 +2,7 @@ declare module 'sse-channel' {
   import { EventEmitter } from 'events';
   import { IncomingMessage, ServerResponse } from 'http';
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Client {}
 
   interface MessageObj {

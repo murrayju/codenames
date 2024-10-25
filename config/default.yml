@@ -1207,7 +1207,7 @@ words:
       - 'wood'
 openai:
   apiKey: ''
-  model: gpt-4
+  model: gpt-4o-mini
   temperature: 1
   systemPrompt: |
     As the Codenames Spymaster, your task is to provide a single-word clue that relates to the greatest number of your team's words on the board, without any association to your opponents' words, bystander words, or the assassin word. After determining the clue, add a number to show how many of your team's words are connected to the clue. Carefully select the clue, avoiding any connections to other categories of words on the board or the words themselves.

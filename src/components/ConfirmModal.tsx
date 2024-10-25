@@ -1,13 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import React, {
-  FC,
-  Fragment,
-  ReactNode,
-  useCallback,
-  useRef,
-  useState,
-} from 'react';
+import { FC, Fragment, ReactNode, useCallback, useRef, useState } from 'react';
 
 interface Props {
   cancelText?: string;

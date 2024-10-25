@@ -1,6 +1,6 @@
 import cn from 'classnames';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { FC, useCallback } from 'react';
+import { FC, useCallback } from 'react';
 import { styled } from 'styled-components';
 
 import type { Player, TileType } from '../api/Game.js';

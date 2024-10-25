@@ -1,6 +1,3 @@
-/* eslint-disable react/no-unknown-property */
-import React from 'react';
-
 import type { GameDbData } from '../api/Game.js';
 
 import { JoinGameForm } from './JoinGameForm.js';

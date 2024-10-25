@@ -24,8 +24,7 @@ export default async function prerender() {
     resolve('../dist/client/index.html'),
     'utf-8',
   );
-  // @ts-ignore
-  // eslint-disable-next-line import/extensions
+  // @ts-expect-error import
   const { render } = await import('../dist/server/entry-server.js');
 
   // determine routes to pre-render from src/pages

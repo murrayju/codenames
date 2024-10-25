@@ -38,7 +38,6 @@ const useEventSource = (
     initializeFn(es);
 
     // cleanup
-    // eslint-disable-next-line consistent-return
     return () => {
       try {
         es.close();

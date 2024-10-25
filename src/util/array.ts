@@ -1,7 +1,7 @@
 export async function findAsync<T, R>(
   array: T[],
   predicate: (element: T, index: number, array: T[]) => Promise<R>,
-  thisArg?: Object,
+  thisArg?: object,
 ): Promise<[T, R] | void> {
   if (array == null) {
     throw new TypeError('Array is null or undefined');
@@ -14,7 +14,7 @@ export async function findAsync<T, R>(
   let i = 0;
 
   while (i < len) {
-    const val = array[i]; // eslint-disable-next-line no-await-in-loop
+    const val = array[i];
     const result = await predicate.call(thisArg, val, i, array);
     if (result) {
       return [val, result];

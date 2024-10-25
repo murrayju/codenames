@@ -1,5 +1,4 @@
 import cn from 'classnames';
-import React from 'react';
 import { styled } from 'styled-components';
 
 import { BrandColor, brandColors, Theme } from '../types/theme.js';
@@ -1493,26 +1492,23 @@ const Icon = styled.i.attrs<IconAttrs>(
   }),
 )<IconProps>`
   font-size: ${({ size }) => (typeof size === 'number' ? `${size}px` : size)};
-  color: ${(props) =>
-    // @ts-ignore
-    propsColor(props)};
+  color: ${(props) => propsColor(props)};
   padding: ${({ lgPad, mdPad, pad, smPad }) =>
     pad === 'sm' || !!smPad
       ? '.25em'
       : pad === 'md' || !!mdPad
-      ? '.40em'
-      : pad === 'lg' || !!lgPad
-      ? '.55em'
-      : typeof pad === 'number'
-      ? `${pad}px`
-      : pad};
+        ? '.40em'
+        : pad === 'lg' || !!lgPad
+          ? '.55em'
+          : typeof pad === 'number'
+            ? `${pad}px`
+            : pad};
 `;
 
 export default Icon;
 
 export const Spinner = styled(({ name = 'spinner', ...props }) => (
-  // @ts-ignore
-  // eslint-disable-next-line react/jsx-props-no-spreading
+  // @ts-expect-error ignore
   <Icon name={name} {...props} />
 ))`
   animation: rotate 2s linear infinite;

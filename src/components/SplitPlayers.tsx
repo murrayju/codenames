@@ -1,6 +1,5 @@
 import cn from 'classnames';
 import { LayoutGroup } from 'framer-motion';
-import React from 'react';
 
 import type { Player, PlayerMap } from '../api/Game.js';
 

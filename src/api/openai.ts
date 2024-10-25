@@ -1,11 +1,9 @@
 import config from '@murrayju/config';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 
-const openai = new OpenAIApi(
-  new Configuration({
-    apiKey: config.get('openai.apiKey'),
-  }),
-);
+const openai = new OpenAI({
+  apiKey: config.get('openai.apiKey'),
+});
 
 export interface ClueSuggestionArgs {
   assassinWord: string;
@@ -24,7 +22,7 @@ export const getClueSuggestion = async ({
   opponentWords,
   words,
 }: ClueSuggestionArgs): Promise<ClueSuggestion> => {
-  const completion = await openai.createChatCompletion({
+  const completion = await openai.chat.completions.create({
     messages: [
       { content: config.get('openai.systemPrompt'), role: 'system' },
       {
@@ -43,8 +41,8 @@ ${config.get('openai.postStatePrompt')}
     model: config.get('openai.model'),
     temperature: config.get('openai.temperature'),
   });
-  const message = completion.data.choices[0]?.message?.content || '';
-  console.info('GPT-4 response:', message);
+  const message = completion.choices[0]?.message?.content || '';
+  console.info('LLM response:', message);
   return {
     message,
   };
