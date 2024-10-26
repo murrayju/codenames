@@ -5,8 +5,10 @@ RUN mkdir -p ${buildDir}
 WORKDIR ${buildDir}
 
 # Install node dependencies
-COPY ["yarn.lock", "package.json", "tsconfig.json", "${buildDir}/"]
-RUN yarn
+COPY ["yarn.lock", "package.json", "${buildDir}/"]
+RUN --mount=type=cache,target=/.yarn,sharing=locked \
+    YARN_CACHE_FOLDER=/.yarn \
+    yarn install --frozen-lockfile
 
 # Build the code
 ARG BUILD_NUMBER
@@ -14,7 +16,7 @@ ENV BUILD_NUMBER=${BUILD_NUMBER:-0}
 COPY . .
 RUN yarn target build
 
-FROM node:20 AS prod
+FROM node:20-slim AS prod
 
 ENV buildDir=/opt/app
 RUN mkdir -p ${buildDir}
@@ -23,7 +25,9 @@ RUN mkdir /config
 
 # prod dependencies
 COPY ["yarn.lock", "package.json", "${buildDir}/"]
-RUN yarn install --production
+RUN --mount=type=cache,target=/.yarn,sharing=locked \
+    YARN_CACHE_FOLDER=/.yarn \
+    yarn install --production --frozen-lockfile
 
 COPY --from=build ["${buildDir}/dist/", "${buildDir}/dist/"]
 COPY --from=build ["${buildDir}/src/", "${buildDir}/src/"]
